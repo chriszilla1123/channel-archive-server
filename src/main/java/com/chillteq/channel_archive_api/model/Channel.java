@@ -57,4 +57,16 @@ public class Channel {
     public void setVideos(ArrayList<Video> videos) {
         this.videos = videos;
     }
+
+    @Override
+    public String toString() {
+        return "Channel{" +
+                "channelName='" + channelName + '\'' +
+                ", channelId='" + channelId + '\'' +
+                ", channelDir='" + channelDir + '\'' +
+                ", channelUrl='" + channelUrl + '\'' +
+                ", playlistUrl='" + playlistUrl + '\'' +
+                ", videos=" + videos +
+                '}';
+    }
 }
