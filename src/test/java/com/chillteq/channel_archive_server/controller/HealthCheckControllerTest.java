@@ -1,4 +1,4 @@
-package com.chillteq.channel_archive_api.controller;
+package com.chillteq.channel_archive_server.controller;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

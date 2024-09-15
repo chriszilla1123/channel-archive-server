@@ -1,4 +1,4 @@
-package com.chillteq.channel_archive_api.model;
+package com.chillteq.channel_archive_server.model;
 
 import java.util.ArrayList;
 

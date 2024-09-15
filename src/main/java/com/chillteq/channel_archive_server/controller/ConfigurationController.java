@@ -1,7 +1,7 @@
-package com.chillteq.channel_archive_api.controller;
+package com.chillteq.channel_archive_server.controller;
 
-import com.chillteq.channel_archive_api.Service.ConfigurationService;
-import com.chillteq.channel_archive_api.model.Channel;
+import com.chillteq.channel_archive_server.Service.ConfigurationService;
+import com.chillteq.channel_archive_server.model.Channel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

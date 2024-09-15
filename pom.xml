@@ -6,17 +6,17 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.3.3</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
 	</parent>
 	<groupId>com.chillteq</groupId>
-	<artifactId>channel-archive-api</artifactId>
+	<artifactId>channel-archive-server</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>channel-archive-api</name>
-	<description>Channel Archive API</description>
+	<name>channel-archive-server</name>
+	<description>Channel Archive Server</description>
 	<url/>
 	<licenses>
 		<license/>
-	</licenses>
+		</licenses>
 	<developers>
 		<developer/>
 	</developers>
@@ -52,6 +52,20 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+
+<!--			Maven build-->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>${maven-jar-plugin.version}</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>com.chillteq.channel_archive_server.Application</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

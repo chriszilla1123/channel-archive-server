@@ -1,6 +1,4 @@
-package com.chillteq.channel_archive_api.model;
-
-import java.io.Serializable;
+package com.chillteq.channel_archive_server.model;
 
 public class Video {
     private String videoId;
