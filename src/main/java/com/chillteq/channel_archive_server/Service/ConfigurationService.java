@@ -4,26 +4,41 @@ import com.chillteq.channel_archive_server.model.Channel;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
 @Service
 public class ConfigurationService {
-    private String userDefinedConfigFileLocation = null;
-    private String exampleConfigFileLocation = "example.config";
+    private static final Logger logger = LoggerFactory.getLogger(ConfigurationService.class);
+
+    private final String userDefinedConfigFileLocation = "/channelArchive.config";
+    private final String exampleConfigResourceName = "example.config";
 
     public List<Channel> getChannels() {
-        String configFileLocation = userDefinedConfigFileLocation != null ? userDefinedConfigFileLocation : exampleConfigFileLocation;
+        InputStream in;
         try {
-            InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(configFileLocation);
+            in = new FileInputStream(userDefinedConfigFileLocation);
+            logger.info("Using user defined config file");
+        } catch (FileNotFoundException e) {
+            in = Thread.currentThread().getContextClassLoader().getResourceAsStream(exampleConfigResourceName);
+            logger.info("User defined config file not found, falling back to example file");
+        }
+
+        try {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode jsonNode = mapper.readTree(in);
-            List<Channel> channels = mapper.convertValue(jsonNode, new TypeReference<List<Channel>>(){});
+            List<Channel> channels = mapper.convertValue(jsonNode, new TypeReference<>(){});
             setURLs(channels);
             return channels;
-        } catch (Exception e) {
+        } catch (IOException e) {
+            logger.error("Error parsing config file: {}", e.getMessage());
             throw new RuntimeException(e);
         }
     }
