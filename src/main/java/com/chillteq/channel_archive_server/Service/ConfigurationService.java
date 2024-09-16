@@ -18,7 +18,7 @@ import java.util.List;
 public class ConfigurationService {
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationService.class);
 
-    private final String userDefinedConfigFileLocation = "/channelArchive.config";
+    private final String userDefinedConfigFileLocation = "/userDefined.config";
     private final String exampleConfigResourceName = "example.config";
 
     public List<Channel> getChannels() {
