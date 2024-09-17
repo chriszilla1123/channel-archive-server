@@ -4,17 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Video {
-    private String id;
     private String title;
     private String channelName;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
+    private String id;
 
     public String getTitle() {
         return title;
@@ -30,6 +22,14 @@ public class Video {
 
     public void setChannelName(String channelName) {
         this.channelName = channelName;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
