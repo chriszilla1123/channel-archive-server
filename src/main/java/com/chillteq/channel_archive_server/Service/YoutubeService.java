@@ -22,7 +22,18 @@ public class YoutubeService {
 
     private final String YTDL_PATH = "yt-dlp";
 
-    public List<Video> getVideosByChannelUrl(Channel channel) {
+    /**
+     * Fetches the metadata for every video available on a given channel
+     *
+     * @param channel the channel to get video metadata for, requires channel.channelUrl to be set
+     * @return the list of Video objects with metadata fields set
+     * @see Channel
+     * @see Video
+     */
+    public List<Video> getVideoMetadataByChannel(Channel channel) {
+        if(channel.getChannelUrl() == null) {
+            throw new IllegalArgumentException("Call to YoutubeService.getVideosByChannel with null channelUrl. " + channel);
+        }
         String[] command = {
                 YTDL_PATH,
                 "--flat-playlist",
@@ -41,8 +52,8 @@ public class YoutubeService {
             if(exitCode == 0) {
                 logger.info("yt-dl - getVideosByChannelUrl - process exited with exit code {}", exitCode);
             } else {
-                logger.info("yt-dl - failed to validate channelName: {} using command {}", channel.getChannelName(), Arrays.toString(command));
-                throw new YoutubeDownloadException("Failed to validate channelName " + channel.getChannelName() + " using command " + Arrays.toString(command));
+                logger.info("yt-dl - yt-dl returned a failed exitCode {} using command {}", exitCode, Arrays.toString(command));
+                throw new YoutubeDownloadException("yt-dl returned a failed exitCode " + exitCode + " using command " + Arrays.toString(command));
             }
             //Parse JSON response
             List<Video> videos = new ArrayList<>();
@@ -66,8 +77,14 @@ public class YoutubeService {
         }
     }
 
+    public void downloadVideosByChannel(Channel channel) {
+        if(channel.getVideos() == null || channel.getVideos().isEmpty()) {
+            throw new IllegalArgumentException("Call to YoutubeService.downloadVideosByChannel with null channelUrl. " + channel);
+        }
+    }
+
     public void validateChannel(Channel channel) {
-        List<Video> videos = getVideosByChannelUrl(channel);
+        List<Video> videos = getVideoMetadataByChannel(channel);
         logger.info("Successfully validated channel {}, found {} videos", channel.getChannelName(), videos.size());
     }
 }

@@ -1,6 +1,6 @@
 package com.chillteq.channel_archive_server.model;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class Channel {
     private String channelName;
@@ -8,7 +8,7 @@ public class Channel {
     private String channelDir;
     private String channelUrl;
     private String playlistUrl;
-    private ArrayList<Video> videos;
+    private List<Video> videos;
 
     public String getChannelName() {
         return channelName;
@@ -50,11 +50,11 @@ public class Channel {
         this.playlistUrl = playlistUrl;
     }
 
-    public ArrayList<Video> getVideos() {
+    public List<Video> getVideos() {
         return videos;
     }
 
-    public void setVideos(ArrayList<Video> videos) {
+    public void setVideos(List<Video> videos) {
         this.videos = videos;
     }
 
