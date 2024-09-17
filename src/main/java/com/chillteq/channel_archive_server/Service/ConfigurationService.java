@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.FileInputStream;
@@ -13,10 +14,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class ConfigurationService {
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationService.class);
+
+    @Autowired
+    private YoutubeService youtubeService;
 
     private final String userDefinedConfigFileLocation = "/userDefined.config";
     private final String exampleConfigResourceName = "example.config";
@@ -41,6 +46,21 @@ public class ConfigurationService {
             logger.error("Error parsing config file: {}", e.getMessage());
             throw new RuntimeException(e);
         }
+    }
+
+    public List<Channel> validateChannels() throws Exception {
+        List<Channel> channels = getChannels();
+        AtomicReference<String> channelName = new AtomicReference<>();
+        try {
+            channels.forEach(channel -> {
+                channelName.set(channel.getChannelName());
+                youtubeService.validateChannel(channel);
+            });
+        } catch (Exception e) {
+            logger.error("Failed to validate channel: {} with the following exception: {}", channelName, e.getMessage());
+            throw new Exception("Failed to validate channel: " + channelName + " with the following exception: " + e);
+        }
+        return channels;
     }
 
     public void setURLs(List<Channel> channels) {

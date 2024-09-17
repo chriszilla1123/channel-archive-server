@@ -22,4 +22,14 @@ public class ConfigurationController {
         List<Channel> channels = service.getChannels();
         return ResponseEntity.ok(channels);
     }
+
+    @GetMapping("/channels/validate")
+    public ResponseEntity<List<Channel>> validateChannels() {
+        try {
+            List<Channel> channels = service.validateChannels();
+            return ResponseEntity.ok(channels);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 }

@@ -1,16 +1,19 @@
 package com.chillteq.channel_archive_server.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Video {
-    private String videoId;
+    private String id;
     private String title;
     private String channelName;
 
-    public String getVideoId() {
-        return videoId;
+    public String getId() {
+        return id;
     }
 
-    public void setVideoId(String videoId) {
-        this.videoId = videoId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -32,7 +35,7 @@ public class Video {
     @Override
     public String toString() {
         return "Video{" +
-                "videoId='" + videoId + '\'' +
+                "videoId='" + id + '\'' +
                 ", title='" + title + '\'' +
                 ", channelName='" + channelName + '\'' +
                 '}';
