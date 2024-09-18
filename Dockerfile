@@ -9,7 +9,7 @@
 ################################################################################
 
 # Create a stage for resolving and downloading dependencies.
-FROM eclipse-temurin:22-jdk-jammy AS deps
+FROM eclipse-temurin:22-jdk-alpine AS deps
 
 WORKDIR /build
 
