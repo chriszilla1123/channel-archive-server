@@ -9,7 +9,7 @@
 ################################################################################
 
 # Create a stage for resolving and downloading dependencies.
-FROM openjdk:22 AS deps
+FROM openjdk:22-jdk AS deps
 
 WORKDIR /build
 
