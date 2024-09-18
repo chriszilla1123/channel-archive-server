@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 ################################################################################
-FROM eclipse-temurin:21 AS deps
+FROM eclipse-temurin:22-jdk-jammy AS deps
 
 WORKDIR /build
 
@@ -33,11 +33,11 @@ RUN java -Djarmode=layertools -jar target/app.jar extract --destination target/e
 
 ################################################################################
 
-FROM eclipse-temurin:21 AS final
+FROM eclipse-temurin:22-jre-jammy AS final
 
 RUN apt-get update && \
     apt-get install -y python3 python3-pip
-    
+
 RUN pip3 install yt-dlp
 
 ARG UID=10001
