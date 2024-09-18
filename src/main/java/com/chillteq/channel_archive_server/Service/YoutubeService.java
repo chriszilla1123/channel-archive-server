@@ -20,6 +20,7 @@ import java.util.List;
 public class YoutubeService {
     Logger logger = LoggerFactory.getLogger(YoutubeService.class);
 
+    private final String baseDir = "/baseDirectory/";
     private final String YTDL_PATH = "yt-dlp";
 
     /**
@@ -40,47 +41,94 @@ public class YoutubeService {
                 "-j",
                 channel.getChannelUrl()
         };
+        Process process = null;
         try {
-            Process process = new ProcessBuilder(command).start();
-            BufferedReader processOutputReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            List<String> processOutput = new ArrayList<>();
-            String line;
-            while ((line = processOutputReader.readLine()) != null) {
-                processOutput.add(line);
-            }
-            int exitCode = process.waitFor();
-            if(exitCode == 0) {
-                logger.info("yt-dl - getVideosByChannelUrl - process exited with exit code {}", exitCode);
-            } else {
-                logger.info("yt-dl - yt-dl returned a failed exitCode {} using command {}", exitCode, Arrays.toString(command));
-                throw new YoutubeDownloadException("yt-dl returned a failed exitCode " + exitCode + " using command " + Arrays.toString(command));
-            }
-            //Parse JSON response
-            List<Video> videos = new ArrayList<>();
-            processOutput.forEach(outputLine -> {
-                ObjectMapper mapper = new ObjectMapper();
-                try {
-                    Video video = mapper.readValue(outputLine, Video.class);
-                    video.setChannelName(channel.getChannelName());
-                    videos.add(video);
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-            return videos;
+            process = new ProcessBuilder(command).start();
         } catch (IOException e) {
-            logger.error("IOException starting yt-dl process - getVideosByChannelUrl - {}", channel.getChannelUrl());
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            logger.error("InterruptedException running yt-dl process - getVideosByChannelUrl - {}", channel.getChannelUrl());
+            logger.error("RuntimeException starting yt-dl", e);
             throw new RuntimeException(e);
         }
+        BufferedReader processOutputReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        List<String> processOutput = new ArrayList<>();
+        String line;
+        while (true) {
+            try {
+                if ((line = processOutputReader.readLine()) == null) break;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            processOutput.add(line);
+        }
+        int exitCode = 0;
+        try {
+            exitCode = process.waitFor();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        if(exitCode == 0) {
+            logger.info("yt-dl - getVideoMetadataByChannel - process exited with exit code {}", exitCode);
+        } else {
+            logger.info("yt-dl - getVideoMetadataByChannel - yt-dl returned a failed exitCode {} using command {}", exitCode, Arrays.toString(command));
+            throw new YoutubeDownloadException("yt-dl returned a failed exitCode " + exitCode + " using command " + Arrays.toString(command));
+        }
+        //Parse JSON response
+        List<Video> videos = new ArrayList<>();
+        processOutput.forEach(outputLine -> {
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                Video video = mapper.readValue(outputLine, Video.class);
+                video.setChannelName(channel.getChannelName());
+                videos.add(video);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return videos;
     }
 
     public void downloadVideosByChannel(Channel channel) {
         if(channel.getVideos() == null || channel.getVideos().isEmpty()) {
             throw new IllegalArgumentException("Call to YoutubeService.downloadVideosByChannel with null channelUrl. " + channel);
         }
+        channel.getVideos().forEach(video -> {
+            String videoUrl = "https://www.youtube.com/watch?v=" + video.getId();
+            String outputFileLocation = baseDir + "/" + channel.getChannelDir() + "/" + "%(upload_date)s - %(title)s - %(id)s.%(ext)s";
+            String[] command = {
+                    YTDL_PATH,
+                    "-o",
+                    outputFileLocation,
+                    videoUrl
+            };
+            Process process = null;
+            try {
+                process = new ProcessBuilder(command).start();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            BufferedReader processOutputReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            List<String> processOutput = new ArrayList<>();
+            String line;
+            while (true) {
+                try {
+                    if ((line = processOutputReader.readLine()) == null) break;
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                processOutput.add(line);
+            }
+            int exitCode = 0;
+            try {
+                exitCode = process.waitFor();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            if(exitCode == 0) {
+                logger.info("yt-dl - downloadVideosByChannel - process exited with exit code {}", exitCode);
+            } else {
+                logger.info("yt-dl - downloadVideosByChannel - yt-dl returned a failed exitCode {} using command {}", exitCode, Arrays.toString(command));
+                throw new YoutubeDownloadException("yt-dl returned a failed exitCode " + exitCode + " using command " + Arrays.toString(command));
+            }
+        });
     }
 
     public void validateChannel(Channel channel) {

@@ -28,10 +28,11 @@ public class DownloadService {
     public List<Channel> downloadVideos(OutputStream outputStream) throws IOException {
         List<Channel> channels = configurationService.getChannels();
         channels.forEach(channel -> {
-           channel.setVideos(youtubeService.getVideoMetadataByChannel(channel));
+            channel.setVideos(youtubeService.getVideoMetadataByChannel(channel));
             List<Video> filteredVideos = fileService.filterDownloadedVideosFromChannel(channel);
             logger.info("{} - found {} videos on channel, {} need to be downloaded", channel, channel.getVideos().size(), filteredVideos.size());
             channel.setVideos(filteredVideos);
+            youtubeService.downloadVideosByChannel(channel);
             OutputStreamUtility.writeObjectAsJson(outputStream, channel);
         });
         return channels;

@@ -5,5 +5,5 @@ services:
     ports:
       - 8080:8080
     volumes:
-      - C:\Users\Chris\Documents\example.config:/userDefined.config
-      - Z:\Youtube\:/baseDirectory/
+      - /c/Users/Chris/Documents/example.config:/userDefined.config
+      - /c/Users/Chris/Documents/baseDirectory/:/baseDirectory/
