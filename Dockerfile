@@ -33,7 +33,7 @@ RUN java -Djarmode=layertools -jar target/app.jar extract --destination target/e
 
 ################################################################################
 
-FROM eclipse-temurin:22 AS final
+FROM openjdk:22 AS final
 
 RUN apt-get update && \
     apt-get install -y python3 python3-pip
