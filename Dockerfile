@@ -9,7 +9,7 @@
 ################################################################################
 
 # Create a stage for resolving and downloading dependencies.
-FROM openjdk:22-jdk AS deps
+FROM eclipse-temurin:22 AS deps
 
 WORKDIR /build
 
