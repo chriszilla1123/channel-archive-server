@@ -28,12 +28,25 @@ public class DownloadService {
     public List<Channel> downloadVideos(OutputStream outputStream) throws IOException {
         List<Channel> channels = configurationService.getChannels();
         channels.forEach(channel -> {
+            //Fetch all videos available on channel
+            String logMessage = String.format("Processing channel: [name: %s, id: %s, directory: %s]", channel.getChannelName(), channel.getChannelId(), channel.getChannelDir());
+            logger.info(logMessage);
+            OutputStreamUtility.write(outputStream, logMessage);
             channel.setVideos(youtubeService.getVideoMetadataByChannel(channel));
+
+            //Filter out videos already downloaded
             List<Video> filteredVideos = fileService.filterDownloadedVideosFromChannel(channel);
-            logger.info("{} - found {} videos on channel, {} need to be downloaded", channel, channel.getVideos().size(), filteredVideos.size());
-            channel.setVideos(filteredVideos);
-            youtubeService.downloadVideosByChannel(channel);
-            OutputStreamUtility.writeObjectAsJson(outputStream, channel);
+            logMessage = String.format("\tFound %s videos on channel: downloading %s and skipping %s already downloaded",
+                    channel.getVideos().size(), filteredVideos.size(), channel.getVideos().size() - filteredVideos.size());
+            logger.info(logMessage);
+            OutputStreamUtility.write(outputStream, logMessage);
+
+            //Download videos
+            if(!filteredVideos.isEmpty()) {
+                channel.setVideos(filteredVideos);
+                youtubeService.downloadVideosByChannel(channel, outputStream);
+            }
+
         });
         return channels;
     }
