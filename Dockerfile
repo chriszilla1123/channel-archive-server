@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 ################################################################################
-FROM eclipse-temurin:22-jdk-alpine AS deps
+FROM eclipse-temurin:22-alpine AS deps
 
 WORKDIR /build
 
