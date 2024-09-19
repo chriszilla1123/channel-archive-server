@@ -3,7 +3,7 @@ package com.chillteq.channel_archive_server.model.request;
 public class DownloadRequestModel {
     boolean dryRun = true;
 
-    public boolean getDryRun() {
+    public boolean isDryRun() {
         return dryRun;
     }
 

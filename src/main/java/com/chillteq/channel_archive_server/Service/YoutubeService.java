@@ -3,6 +3,7 @@ package com.chillteq.channel_archive_server.Service;
 import com.chillteq.channel_archive_server.exception.YoutubeDownloadException;
 import com.chillteq.channel_archive_server.model.Channel;
 import com.chillteq.channel_archive_server.model.Video;
+import com.chillteq.channel_archive_server.util.OutputStreamUtility;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -16,6 +17,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class YoutubeService {
@@ -87,12 +89,20 @@ public class YoutubeService {
         return videos;
     }
 
-    public void downloadVideosByChannel(Channel channel, OutputStream outputStream) {
+    public void downloadVideosByChannel(Channel channel, OutputStream outputStream, boolean dryRun) {
         if(channel.getVideos() == null || channel.getVideos().isEmpty()) {
             throw new IllegalArgumentException("Call to YoutubeService.downloadVideosByChannel with null channelUrl. " + channel);
         }
         channel.getVideos().forEach(video -> {
+            String log = String.format("\tDownloading video \"%s\"", video.getTitle());
+            logger.info(log);
+            OutputStreamUtility.writeLine(outputStream, log);
             String videoUrl = "https://www.youtube.com/watch?v=" + video.getId();
+
+            if(dryRun) {
+                return;
+            }
+
             String outputFileLocation = baseDir + "/" + channel.getChannelDir() + "/" + "%(upload_date)s - %(title)s - %(id)s.%(ext)s";
             String[] command = {
                     YTDL_PATH,

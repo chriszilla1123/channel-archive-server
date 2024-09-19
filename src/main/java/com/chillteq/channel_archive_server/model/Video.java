@@ -35,9 +35,9 @@ public class Video {
     @Override
     public String toString() {
         return "Video{" +
-                "videoId='" + id + '\'' +
                 ", title='" + title + '\'' +
                 ", channelName='" + channelName + '\'' +
+                "videoId='" + id + '\'' +
                 '}';
     }
 }

@@ -27,9 +27,9 @@ public class DownloadController {
      * @return
      */
     @PostMapping(consumes = "application/json", produces = "text/plain")
-    public ResponseEntity<StreamingResponseBody> downloadVideos(@RequestBody(required = false) DownloadRequestModel requestModel) {
+    public ResponseEntity<StreamingResponseBody> downloadVideos(@RequestBody DownloadRequestModel request) {
         StreamingResponseBody stream = outputStream -> {
-            service.downloadVideos(outputStream);
+            service.downloadVideos(request, outputStream);
         };
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=data.txt")
                 .contentType(MediaType.TEXT_PLAIN).body(stream);

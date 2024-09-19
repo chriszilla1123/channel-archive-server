@@ -19,6 +19,25 @@ public class OutputStreamUtility {
         }
         try {
             outputStream.write(message != null ? message.getBytes() : "".getBytes());
+            outputStream.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Writes a String message to a provided outputStream, if it exists
+     * Adds newline following the message
+     *
+     * @param outputStream silently returns if null
+     * @param message defaults to a newline if the message is null
+     */
+    public static void writeLine(OutputStream outputStream, String message) {
+        if(outputStream == null) {
+            return;
+        }
+        try {
+            outputStream.write(message != null ? message.getBytes() : "".getBytes());
             outputStream.write("\n".getBytes());
             outputStream.flush();
         } catch (IOException e) {
