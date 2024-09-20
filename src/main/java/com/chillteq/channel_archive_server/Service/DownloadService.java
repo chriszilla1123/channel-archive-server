@@ -26,32 +26,37 @@ public class DownloadService {
     @Autowired
     private YoutubeService youtubeService;
 
-    public List<Channel> downloadVideos(DownloadRequestModel request, OutputStream outputStream) throws IOException {
+    public List<Channel> downloadVideos(DownloadRequestModel request, OutputStream outputStream) {
         if(request.isDryRun()) {
             OutputStreamUtility.writeLine(outputStream, "Starting in dry-run mode. no videos will actually be downloaded\n");
         }
-        List<Channel> channels = configurationService.getChannels();
-        channels.forEach(channel -> {
-            //Fetch all videos available on channel
-            String logMessage = String.format("Processing channel: [name: %s, id: %s, directory: %s]", channel.getChannelName(), channel.getChannelId(), channel.getChannelDir());
-            logger.info(logMessage);
-            OutputStreamUtility.writeLine(outputStream, logMessage);
-            channel.setVideos(youtubeService.getVideoMetadataByChannel(channel));
+        try {
+            List<Channel> channels = configurationService.getChannels();
+            channels.forEach(channel -> {
+                //Fetch all videos available on channel
+                String logMessage = String.format("Processing channel: [name: %s, id: %s, directory: %s]", channel.getChannelName(), channel.getChannelId(), channel.getChannelDir());
+                logger.info(logMessage);
+                OutputStreamUtility.writeLine(outputStream, logMessage);
+                channel.setVideos(youtubeService.getVideoMetadataByChannel(channel));
 
-            //Filter out videos already downloaded
-            List<Video> filteredVideos = fileService.filterDownloadedVideosFromChannel(channel);
-            logMessage = String.format("\tFound %s videos on channel: downloading %s and skipping %s already downloaded",
-                    channel.getVideos().size(), filteredVideos.size(), channel.getVideos().size() - filteredVideos.size());
-            logger.info(logMessage);
-            OutputStreamUtility.writeLine(outputStream, logMessage);
+                //Filter out videos already downloaded
+                List<Video> filteredVideos = fileService.filterDownloadedVideosFromChannel(channel);
+                logMessage = String.format("\tFound %s videos on channel: downloading %s and skipping %s already downloaded",
+                        channel.getVideos().size(), filteredVideos.size(), channel.getVideos().size() - filteredVideos.size());
+                logger.info(logMessage);
+                OutputStreamUtility.writeLine(outputStream, logMessage);
 
-            //Download videos
-            if(!filteredVideos.isEmpty()) {
-                channel.setVideos(filteredVideos);
-                youtubeService.downloadVideosByChannel(channel, outputStream, request.isDryRun());
-            }
+                //Download videos
+                if(!filteredVideos.isEmpty()) {
+                    channel.setVideos(filteredVideos);
+                    youtubeService.downloadVideosByChannel(channel, outputStream, request.isDryRun());
+                }
 
-        });
-        return channels;
+            });
+            return channels;
+        } catch (Exception e) {
+            OutputStreamUtility.writeLine(outputStream, e.getMessage());
+            throw e;
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.chillteq.channel_archive_server.Service;
 
+import com.chillteq.channel_archive_server.exception.ConfigParseException;
 import com.chillteq.channel_archive_server.model.Channel;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -26,7 +27,7 @@ public class ConfigurationService {
     private final String userDefinedConfigFileLocation = "/userDefined.config";
     private final String exampleConfigResourceName = "example.config";
 
-    public List<Channel> getChannels() {
+    public List<Channel> getChannels() throws ConfigParseException {
         InputStream in;
         try {
             in = new FileInputStream(userDefinedConfigFileLocation);
@@ -44,7 +45,7 @@ public class ConfigurationService {
             return channels;
         } catch (IOException e) {
             logger.error("Error parsing config file: {}", e.getMessage());
-            throw new RuntimeException(e);
+            throw new ConfigParseException("Error parsing config file: " + e.getMessage());
         }
     }
 
