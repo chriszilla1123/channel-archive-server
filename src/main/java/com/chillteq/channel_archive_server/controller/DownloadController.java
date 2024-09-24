@@ -1,7 +1,6 @@
 package com.chillteq.channel_archive_server.controller;
 
 import com.chillteq.channel_archive_server.Service.DownloadService;
-import com.chillteq.channel_archive_server.model.Channel;
 import com.chillteq.channel_archive_server.model.request.DownloadRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -12,8 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
-
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/download")

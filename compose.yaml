@@ -4,6 +4,9 @@ services:
       context: .
     ports:
       - 8080:8080
+    environment:
+      - USER=localuser
+      - PASS=localpassword
     volumes:
       - /c/Users/Chris/Documents/example.config:/userDefined.config
       - /c/Users/Chris/Documents/baseDirectory/:/baseDirectory/
