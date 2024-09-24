@@ -70,7 +70,6 @@ public class Channel {
     @Override
     public String toString() {
         return "Channel{" +
-                "entryId=" + entryId +
                 "channelName='" + channelName + '\'' +
                 ", channelId='" + channelId + '\'' +
                 ", channelDir='" + channelDir + '\'' +
