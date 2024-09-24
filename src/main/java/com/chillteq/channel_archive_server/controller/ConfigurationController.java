@@ -4,7 +4,6 @@ import com.chillteq.channel_archive_server.Service.ConfigurationService;
 import com.chillteq.channel_archive_server.exception.ConfigParseException;
 import com.chillteq.channel_archive_server.model.Channel;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
