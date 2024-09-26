@@ -29,6 +29,7 @@ public class DownloadService {
         if(request.isDryRun()) {
             OutputStreamUtility.writeLine(outputStream, "Starting in dry-run mode. no videos will actually be downloaded\n");
         }
+        long startTime = System.currentTimeMillis();
         try {
             List<Channel> channels = configurationService.getChannels();
             channels.forEach(channel -> {
@@ -52,6 +53,11 @@ public class DownloadService {
                 }
 
             });
+
+            long endTime = System.currentTimeMillis();
+            String logMessage = String.format("Process completed in %s seconds", ((double) endTime - startTime) / 1000);
+            logger.info(logMessage);
+            OutputStreamUtility.writeLine(outputStream, logMessage);
             return channels;
         } catch (Exception e) {
             OutputStreamUtility.writeLine(outputStream, e.getMessage());
