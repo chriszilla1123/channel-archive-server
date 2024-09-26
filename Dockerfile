@@ -86,7 +86,7 @@ RUN adduser \
     --no-create-home \
     --uid "${UID}" \
     appuser
-USER appuser
+#USER appuser
 
 # Copy the executable from the "package" stage.
 COPY --from=extract build/target/extracted/dependencies/ ./
