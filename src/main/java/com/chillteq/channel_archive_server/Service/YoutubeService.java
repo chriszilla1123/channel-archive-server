@@ -22,7 +22,7 @@ import java.util.List;
 public class YoutubeService {
     Logger logger = LoggerFactory.getLogger(YoutubeService.class);
 
-    private final String baseDir = "/baseDirectory/";
+    private final String baseDir = "/baseDirectory";
     private final String YTDL_PATH = "yt-dlp";
 
     /**
