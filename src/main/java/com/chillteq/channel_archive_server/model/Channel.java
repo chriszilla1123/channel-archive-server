@@ -1,13 +1,23 @@
 package com.chillteq.channel_archive_server.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.util.List;
 
 public class Channel {
     private String channelName;
+
     private String channelId;
+
     private String channelDir;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String channelUrl;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String playlistUrl;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<Video> videos;
 
     public String getChannelName() {
