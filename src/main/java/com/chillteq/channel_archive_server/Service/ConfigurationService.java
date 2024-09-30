@@ -10,10 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -49,6 +46,30 @@ public class ConfigurationService {
         }
     }
 
+    public List<Channel> persistChannels(List<Channel> channels) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            mapper.writeValue(new File(userDefinedConfigFileLocation), channels);
+        } catch (IOException e) {
+            logger.error("Error writing config file: {}", e.getMessage());
+        }
+        return channels;
+    }
+
+    public List<Channel> updateChannels(List<Channel> channels) {
+        channels.forEach(channel -> {
+            try {
+                setURL(channel);
+                youtubeService.validateChannel(channel);
+                channel.prepareForJsonSave();
+            } catch (Exception e) {
+                logger.error("Failed to validate channel: {} with the following exception: {}", channel.getChannelName(), e.getMessage());
+                throw e;
+            }
+        });
+        return persistChannels(channels);
+    }
+
     public List<Channel> validateChannels() throws Exception {
         List<Channel> channels = getChannels();
         AtomicReference<String> channelName = new AtomicReference<>();
@@ -65,21 +86,23 @@ public class ConfigurationService {
     }
 
     public void setURLs(List<Channel> channels) {
-        channels.forEach(channel -> {
-            if (channel.getChannelId().startsWith("http")
+        channels.forEach(this::setURL);
+    }
+
+    public void setURL(Channel channel) {
+        if (channel.getChannelId().startsWith("http")
                 || channel.getChannelId().startsWith("www")
                 || channel.getChannelId().startsWith("youtube.com")) {
-                //If user sets the full channel URL
-                channel.setChannelUrl(channel.getChannelId() + "/videos");
-            }
-            else if (channel.getChannelId().startsWith("@")) {
-                //If user sets just the @Name
-                channel.setChannelUrl("https://youtube.com/" + channel.getChannelId() + "/videos");
-            }
-            else {
-                //If user sets the channel ID
-                channel.setChannelUrl("http://youtube.com" + channel.getChannelId() + "/videos");
-            }
-        });
+            //If user sets the full channel URL
+            channel.setChannelUrl(channel.getChannelId() + "/videos");
+        }
+        else if (channel.getChannelId().startsWith("@")) {
+            //If user sets just the @Name
+            channel.setChannelUrl("https://youtube.com/" + channel.getChannelId() + "/videos");
+        }
+        else {
+            //If user sets the channel ID
+            channel.setChannelUrl("http://youtube.com" + channel.getChannelId() + "/videos");
+        }
     }
 }

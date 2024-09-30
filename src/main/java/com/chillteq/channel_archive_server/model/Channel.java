@@ -3,21 +3,12 @@ package com.chillteq.channel_archive_server.model;
 import java.util.List;
 
 public class Channel {
-    private Long entryId;
     private String channelName;
     private String channelId;
     private String channelDir;
     private String channelUrl;
     private String playlistUrl;
     private List<Video> videos;
-
-    public Long getEntryId() {
-        return entryId;
-    }
-
-    public void setEntryId(Long entryId) {
-        this.entryId = entryId;
-    }
 
     public String getChannelName() {
         return channelName;
@@ -67,10 +58,15 @@ public class Channel {
         this.videos = videos;
     }
 
+    public void prepareForJsonSave() {
+        this.setChannelUrl(null);
+        this.setPlaylistUrl(null);
+        this.setVideos(null);
+    }
+
     @Override
     public String toString() {
         return "Channel{" +
-                "entryId=" + entryId +
                 "channelName='" + channelName + '\'' +
                 ", channelId='" + channelId + '\'' +
                 ", channelDir='" + channelDir + '\'' +
