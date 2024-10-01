@@ -56,17 +56,25 @@ public class ConfigurationService {
         return channels;
     }
 
-    public List<Channel> updateChannels(List<Channel> channels) {
-        channels.forEach(channel -> {
-            try {
-                setURL(channel);
-                youtubeService.validateChannel(channel);
-                channel.prepareForJsonSave();
-            } catch (Exception e) {
-                logger.error("Failed to validate channel: {} with the following exception: {}", channel.getChannelName(), e.getMessage());
-                throw e;
-            }
-        });
+    public List<Channel> updateChannels(List<Channel> channels) throws Exception {
+        logger.info("Attempting to update channel list with: {}", channels);
+        if(channels == null || channels.isEmpty()) {
+            throw new Exception("No channels passed");
+        }
+        try {
+            channels.forEach(channel -> {
+                try {
+                    setURL(channel);
+                    youtubeService.validateChannel(channel);
+                    channel.prepareForJsonSave();
+                } catch (Exception e) {
+                    logger.error("Failed to validate channel: {} with the following exception: {}", channel.getChannelName(), e.getMessage());
+                    throw e;
+                }
+            });
+        } catch (Exception e) {
+            throw new Exception("Failed to validate channels");
+        }
         return persistChannels(channels);
     }
 

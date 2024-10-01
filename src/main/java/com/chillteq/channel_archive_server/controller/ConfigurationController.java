@@ -29,8 +29,12 @@ public class ConfigurationController {
 
     @PutMapping("/channels/update")
     public ResponseEntity<Object> updateChannels(@RequestBody ArrayList<Channel> channels) {
-        List<Channel> updatedChannels = service.updateChannels(channels);
-        return ResponseEntity.ok(updatedChannels);
+        try {
+            List<Channel> updatedChannels = service.updateChannels(channels);
+            return ResponseEntity.ok(updatedChannels);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
     }
 
     @GetMapping("/channels/validate")
