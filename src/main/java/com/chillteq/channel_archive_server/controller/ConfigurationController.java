@@ -1,6 +1,7 @@
 package com.chillteq.channel_archive_server.controller;
 
 import com.chillteq.channel_archive_server.Service.ConfigurationService;
+import com.chillteq.channel_archive_server.Service.YoutubeService;
 import com.chillteq.channel_archive_server.exception.ConfigParseException;
 import com.chillteq.channel_archive_server.model.Channel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,9 @@ public class ConfigurationController {
 
     @Autowired
     private ConfigurationService service;
+
+    @Autowired
+    private YoutubeService youtubeService;
 
     @GetMapping(value = "/channels")
     public ResponseEntity<Object> getChannels() {
@@ -42,6 +46,16 @@ public class ConfigurationController {
         try {
             List<Channel> channels = service.validateChannels();
             return ResponseEntity.ok(channels);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/ytdl/version")
+    public ResponseEntity<Object> getYtdlVersion() {
+        try {
+            String version = youtubeService.getYtdlVersion();
+            return ResponseEntity.ok(version);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }

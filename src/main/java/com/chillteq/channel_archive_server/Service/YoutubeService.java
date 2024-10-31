@@ -8,7 +8,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,6 +26,44 @@ public class YoutubeService {
 
     private final String baseDir = "/baseDirectory";
     private final String YTDL_PATH = "/root/.local/bin/yt-dlp";
+
+    public String getYtdlVersion() {
+        String[] command = {
+                YTDL_PATH,
+                "--version"
+        };
+        Process process = null;
+        try {
+            process = new ProcessBuilder(command).start();
+        } catch (IOException e) {
+            logger.error("RuntimeException starting yt-dl", e);
+            throw new RuntimeException(e);
+        }
+        BufferedReader processOutputReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        List<String> processOutput = new ArrayList<>();
+        String line;
+        while (true) {
+            try {
+                if ((line = processOutputReader.readLine()) == null) break;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            processOutput.add(line);
+        }
+        int exitCode = 0;
+        try {
+            exitCode = process.waitFor();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        if(exitCode == 0) {
+            logger.info("yt-dl - getYtdlVersion - process exited with exit code {}", exitCode);
+        } else {
+            logger.info("yt-dl - getYtdlVersion - yt-dl returned a failed exitCode {} using command {}", exitCode, Arrays.toString(command));
+            throw new YoutubeDownloadException("yt-dl returned a failed exitCode " + exitCode + " using command " + Arrays.toString(command));
+        }
+        return processOutput.getLast();
+    }
 
     /**
      * Fetches the metadata for every video available on a given channel
