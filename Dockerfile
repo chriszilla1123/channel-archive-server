@@ -9,7 +9,7 @@
 ################################################################################
 
 # Create a stage for resolving and downloading dependencies.
-FROM eclipse-temurin:23-jdk-alpine AS deps
+FROM eclipse-temurin:23-jdk-noble AS deps
 
 WORKDIR /build
 
@@ -66,7 +66,7 @@ RUN java -Djarmode=layertools -jar target/app.jar extract --destination target/e
 # most recent version of that tag when you build your Dockerfile.
 # If reproducability is important, consider using a specific digest SHA, like
 # eclipse-temurin@sha256:99cede493dfd88720b610eb8077c8688d3cca50003d76d1d539b0efc8cca72b4.
-FROM eclipse-temurin:23-jre-alpine AS final
+FROM eclipse-temurin:23-jre-noble AS final
 
 # Install Python and pip
 RUN apt-get update && \
