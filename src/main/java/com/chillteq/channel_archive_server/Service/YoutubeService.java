@@ -23,7 +23,7 @@ public class YoutubeService {
     Logger logger = LoggerFactory.getLogger(YoutubeService.class);
 
     private final String baseDir = "/baseDirectory";
-    private final String YTDL_PATH = "yt-dlp";
+    private final String YTDL_PATH = "/root/.local/bin/yt-dlp";
 
     /**
      * Fetches the metadata for every video available on a given channel

@@ -66,14 +66,15 @@ RUN java -Djarmode=layertools -jar target/app.jar extract --destination target/e
 # most recent version of that tag when you build your Dockerfile.
 # If reproducability is important, consider using a specific digest SHA, like
 # eclipse-temurin@sha256:99cede493dfd88720b610eb8077c8688d3cca50003d76d1d539b0efc8cca72b4.
+# 23-jre-noble is an Ubuntu based image. Use Ubuntu commands
 FROM eclipse-temurin:23-jre-noble AS final
 
 # Install Python and pip
 RUN apt-get update && \
-    apt-get install -y python3 python3-pip
+    apt-get install -y pipx
 
 # Install the PyPI package
-RUN pip3 install yt-dlp
+RUN pipx install yt-dlp
 
 # Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/go/dockerfile-user-best-practices/
