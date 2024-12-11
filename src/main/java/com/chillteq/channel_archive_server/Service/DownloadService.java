@@ -1,6 +1,8 @@
 package com.chillteq.channel_archive_server.Service;
 
 import com.chillteq.channel_archive_server.model.Channel;
+import com.chillteq.channel_archive_server.model.DownloadQueueModel;
+import com.chillteq.channel_archive_server.model.DownloadStatisticsModel;
 import com.chillteq.channel_archive_server.model.Video;
 import com.chillteq.channel_archive_server.model.request.DownloadRequestModel;
 import com.chillteq.channel_archive_server.util.OutputStreamUtility;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.OutputStream;
 import java.util.List;
+import java.util.concurrent.*;
 
 @Service
 public class DownloadService {
@@ -25,11 +28,22 @@ public class DownloadService {
     @Autowired
     private YoutubeService youtubeService;
 
-    public List<Channel> downloadVideos(DownloadRequestModel request, OutputStream outputStream) {
+    private BlockingQueue<Video> downloadQueue = new LinkedBlockingQueue<>();
+    private ConcurrentMap<String, Video> pendingDownloads = new ConcurrentHashMap<>();
+    private ConcurrentMap<String, Video> completedDownloads = new ConcurrentHashMap<>();
+    private ConcurrentMap<String, Video> failedDownloads = new ConcurrentHashMap<>();
+
+    /**
+     * Downloads all videos from the configured list of channels
+     * @param request
+     * @param outputStream
+     * @return the list of channels and videos to be downloaded
+     */
+    public List<Channel> downloadArchive(DownloadRequestModel request, OutputStream outputStream) {
+        logger.info("Download Archive process started with request: {}", request);
         if(request.isDryRun()) {
             OutputStreamUtility.writeLine(outputStream, "Starting in dry-run mode. no videos will actually be downloaded\n");
         }
-        long startTime = System.currentTimeMillis();
         try {
             List<Channel> channels = configurationService.getChannels();
             channels.forEach(channel -> {
@@ -46,22 +60,46 @@ public class DownloadService {
                 logger.info(logMessage);
                 OutputStreamUtility.writeLine(outputStream, logMessage);
 
-                //Download videos
+                //Add videos to the download queue
                 if(!filteredVideos.isEmpty()) {
                     channel.setVideos(filteredVideos);
-                    youtubeService.downloadVideosByChannel(channel, outputStream, request.isDryRun());
+                    if(!request.isDryRun()) {
+                        downloadQueue.addAll(filteredVideos);
+                    }
                 }
-
             });
-
-            long endTime = System.currentTimeMillis();
-            String logMessage = String.format("Process completed in %s seconds", ((double) endTime - startTime) / 1000);
-            logger.info(logMessage);
-            OutputStreamUtility.writeLine(outputStream, logMessage);
+            if(!request.isDryRun()) {
+                startDownloadQueue();
+            }
             return channels;
         } catch (Exception e) {
             OutputStreamUtility.writeLine(outputStream, e.getMessage());
             throw e;
         }
+    }
+
+    private void startDownloadQueue() {
+        Video video;
+        while ((video = downloadQueue.poll()) != null) {
+           pendingDownloads.put(video.getId(), video);
+           try {
+               youtubeService.downloadVideo(video.getUrl(), video.getDirectory());
+               pendingDownloads.remove(video.getId());
+               completedDownloads.put(video.getId(), video);
+           } catch (Exception e) {
+               pendingDownloads.remove(video.getId());
+               failedDownloads.put(video.getId(), video);
+           }
+        }
+    }
+
+    public DownloadQueueModel getQueue() {
+        return new DownloadQueueModel(downloadQueue.stream().toList(), pendingDownloads.values().stream().toList(),
+                completedDownloads.values().stream().toList(), failedDownloads.values().stream().toList());
+    }
+
+    public DownloadStatisticsModel getStats() {
+        return new DownloadStatisticsModel(downloadQueue.stream().toList().size(), pendingDownloads.values().stream().toList().size(),
+                completedDownloads.values().stream().toList().size(), failedDownloads.values().stream().toList().size());
     }
 }
