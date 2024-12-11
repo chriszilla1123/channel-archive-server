@@ -171,59 +171,6 @@ public class YoutubeService {
         }
     }
 
-//    public void downloadVideosByChannel(Channel channel, OutputStream outputStream, boolean dryRun) {
-//        if(channel.getVideos() == null || channel.getVideos().isEmpty()) {
-//            throw new IllegalArgumentException("Call to YoutubeService.downloadVideosByChannel with null channelUrl. " + channel);
-//        }
-//        channel.getVideos().forEach(video -> {
-//            String log = String.format("\tDownloading video \"%s\"", video.getTitle());
-//            logger.info(log);
-//            OutputStreamUtility.writeLine(outputStream, log);
-//            String videoUrl = "https://www.youtube.com/watch?v=" + video.getId();
-//
-//            if(dryRun) {
-//                return;
-//            }
-//
-//            String outputFileLocation = baseDir + "/" + channel.getChannelDir() + "/" + "%(upload_date)s - %(title)s - %(id)s.%(ext)s";
-//            String[] command = {
-//                    YTDL_PATH,
-//                    "-o",
-//                    outputFileLocation,
-//                    videoUrl
-//            };
-//            Process process = null;
-//            try {
-//                process = new ProcessBuilder(command).start();
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
-//            BufferedReader processOutputReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-//            List<String> processOutput = new ArrayList<>();
-//            String line;
-//            while (true) {
-//                try {
-//                    if ((line = processOutputReader.readLine()) == null) break;
-//                } catch (IOException e) {
-//                    throw new RuntimeException(e);
-//                }
-//                processOutput.add(line);
-//            }
-//            int exitCode = 0;
-//            try {
-//                exitCode = process.waitFor();
-//            } catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
-//            if(exitCode == 0) {
-//                logger.info("yt-dl - downloadVideosByChannel - process exited with exit code {}", exitCode);
-//            } else {
-//                logger.info("yt-dl - downloadVideosByChannel - yt-dl returned a failed exitCode {} using command {}", exitCode, Arrays.toString(command));
-//                throw new YoutubeDownloadException("yt-dl returned a failed exitCode " + exitCode + " using command " + Arrays.toString(command));
-//            }
-//        });
-//    }
-
     public void validateChannel(Channel channel) {
         List<Video> videos = getVideoMetadataByChannel(channel);
         logger.info("Successfully validated channel {}, found {} videos", channel.getChannelName(), videos.size());
