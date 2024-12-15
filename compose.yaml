@@ -4,9 +4,12 @@ services:
       context: .
     ports:
       - 8080:8080
+      - 5005:5005
     environment:
       - USER=localuser
       - PASS=localpassword
+      - JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0:5005"
     volumes:
-      - /c/Users/Chris/Documents/example.config:/userDefined.config
-      - /c/Users/Chris/Documents/baseDirectory/:/baseDirectory/
+      - /c/Documents/example.config:/userDefined.config
+      - /c/Documents/baseDirectory/:/baseDirectory/
+      - /c/Documents/history:/history.json
