@@ -1,10 +1,8 @@
 package com.chillteq.channel_archive_server.model;
 
-import java.util.List;
-
 public class DownloadStatisticsModel {
-    long downloadQueue;
     long pendingDownloads;
+    long inProgressDownloads;
     long completedDownloads;
     long failedDownloads;
 
@@ -12,20 +10,12 @@ public class DownloadStatisticsModel {
 
     }
 
-    public DownloadStatisticsModel(long downloadQueue, long pendingDownloads,
+    public DownloadStatisticsModel(long pendingDownloads, long inProgressDownloads,
                                    long completedDownloads, long failedDownloads) {
-        this.downloadQueue = downloadQueue;
         this.pendingDownloads = pendingDownloads;
+        this.inProgressDownloads = inProgressDownloads;
         this.completedDownloads = completedDownloads;
         this.failedDownloads = failedDownloads;
-    }
-
-    public long getDownloadQueue() {
-        return downloadQueue;
-    }
-
-    public void setDownloadQueue(long downloadQueue) {
-        this.downloadQueue = downloadQueue;
     }
 
     public long getPendingDownloads() {
@@ -34,6 +24,14 @@ public class DownloadStatisticsModel {
 
     public void setPendingDownloads(long pendingDownloads) {
         this.pendingDownloads = pendingDownloads;
+    }
+
+    public long getInProgressDownloads() {
+        return inProgressDownloads;
+    }
+
+    public void setInProgressDownloads(long inProgressDownloads) {
+        this.inProgressDownloads = inProgressDownloads;
     }
 
     public long getCompletedDownloads() {
@@ -55,8 +53,8 @@ public class DownloadStatisticsModel {
     @Override
     public String toString() {
         return "DownloadStatistics{" +
-                "downloadQueue=" + downloadQueue +
-                ", pendingDownloads=" + pendingDownloads +
+                "downloadQueue=" + pendingDownloads +
+                ", inProgressDownloads=" + inProgressDownloads +
                 ", completedDownloads=" + completedDownloads +
                 ", failedDownloads=" + failedDownloads +
                 '}';

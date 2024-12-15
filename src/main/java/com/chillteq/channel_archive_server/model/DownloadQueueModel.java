@@ -3,8 +3,8 @@ package com.chillteq.channel_archive_server.model;
 import java.util.List;
 
 public class DownloadQueueModel {
-    List<Video> downloadQueue;
     List<Video> pendingDownloads;
+    List<Video> inProgressDownloads;
     List<Video> completedDownloads;
     List<Video> failedDownloads;
 
@@ -12,20 +12,12 @@ public class DownloadQueueModel {
 
     }
 
-    public DownloadQueueModel(List<Video> downloadQueue, List<Video> pendingDownloads,
+    public DownloadQueueModel(List<Video> pendingDownloads, List<Video> inProgressDownloads,
                               List<Video> completedDownloads, List<Video> failedDownloads) {
-        this.downloadQueue = downloadQueue;
         this.pendingDownloads = pendingDownloads;
+        this.inProgressDownloads = inProgressDownloads;
         this.completedDownloads = completedDownloads;
         this.failedDownloads = failedDownloads;
-    }
-
-    public List<Video> getDownloadQueue() {
-        return downloadQueue;
-    }
-
-    public void setDownloadQueue(List<Video> downloadQueue) {
-        this.downloadQueue = downloadQueue;
     }
 
     public List<Video> getPendingDownloads() {
@@ -34,6 +26,14 @@ public class DownloadQueueModel {
 
     public void setPendingDownloads(List<Video> pendingDownloads) {
         this.pendingDownloads = pendingDownloads;
+    }
+
+    public List<Video> getInProgressDownloads() {
+        return inProgressDownloads;
+    }
+
+    public void setInProgressDownloads(List<Video> inProgressDownloads) {
+        this.inProgressDownloads = inProgressDownloads;
     }
 
     public List<Video> getCompletedDownloads() {
@@ -55,8 +55,8 @@ public class DownloadQueueModel {
     @Override
     public String toString() {
         return "DownloadStatistics{" +
-                "downloadQueue=" + downloadQueue +
-                ", pendingDownloads=" + pendingDownloads +
+                "pendingDownloads=" + pendingDownloads +
+                ", inProgressDownloads=" + inProgressDownloads +
                 ", completedDownloads=" + completedDownloads +
                 ", failedDownloads=" + failedDownloads +
                 '}';

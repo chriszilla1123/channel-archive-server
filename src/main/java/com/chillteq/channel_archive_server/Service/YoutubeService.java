@@ -13,8 +13,10 @@ import org.springframework.util.StringUtils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -113,10 +115,12 @@ public class YoutubeService {
         //Parse JSON response
         List<Video> videos = new ArrayList<>();
         processOutput.forEach(outputLine -> {
+            logger.info(outputLine);
             ObjectMapper mapper = new ObjectMapper();
             try {
                 Video video = mapper.readValue(outputLine, Video.class);
                 video.setChannelName(channel.getChannelName());
+                video.setDownload_date(new Date());
                 video.setDirectory(channel.getChannelDir());
                 videos.add(video);
             } catch (JsonProcessingException e) {
