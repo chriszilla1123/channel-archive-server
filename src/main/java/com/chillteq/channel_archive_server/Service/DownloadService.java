@@ -47,16 +47,14 @@ public class DownloadService {
 
             //Filter out videos already downloaded
             List<Video> filteredVideos = fileService.filterDownloadedVideosFromChannel(channel);
+            channel.setVideos(filteredVideos);
             logMessage = String.format("\tFound %s videos on channel: downloading %s and skipping %s already downloaded",
                     channel.getVideos().size(), filteredVideos.size(), channel.getVideos().size() - filteredVideos.size());
             logger.info(logMessage);
 
             //Add videos to the download queue
-            if(!filteredVideos.isEmpty()) {
-                channel.setVideos(filteredVideos);
-                if(!request.isDryRun()) {
-                    pendingDownloads.addAll(filteredVideos);
-                }
+            if(!request.isDryRun()) {
+                pendingDownloads.addAll(filteredVideos);
             }
         });
         if(!request.isDryRun()) {
@@ -70,7 +68,7 @@ public class DownloadService {
         while ((video = pendingDownloads.poll()) != null) {
            inProgressDownloads.put(video.getId(), video);
            try {
-               youtubeService.downloadVideo(video.getUrl(), video.getDirectory());
+               youtubeService.downloadVideo(video);
                inProgressDownloads.remove(video.getId());
                completedDownloads.put(video.getId(), video);
            } catch (Exception e) {
