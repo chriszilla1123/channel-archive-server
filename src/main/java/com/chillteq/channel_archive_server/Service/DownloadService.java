@@ -47,12 +47,12 @@ public class DownloadService {
 
             //Filter out videos already downloaded
             List<Video> filteredVideos = fileService.filterDownloadedVideosFromChannel(channel);
-            channel.setVideos(filteredVideos);
             logMessage = String.format("\tFound %s videos on channel: downloading %s and skipping %s already downloaded",
                     channel.getVideos().size(), filteredVideos.size(), channel.getVideos().size() - filteredVideos.size());
             logger.info(logMessage);
 
             //Add videos to the download queue
+            channel.setVideos(filteredVideos);
             if(!request.isDryRun()) {
                 pendingDownloads.addAll(filteredVideos);
             }
