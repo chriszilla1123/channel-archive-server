@@ -115,7 +115,7 @@ public class YoutubeService {
         //Parse JSON response
         List<Video> videos = new ArrayList<>();
         processOutput.forEach(outputLine -> {
-            logger.info(outputLine);
+            logger.debug(outputLine);
             ObjectMapper mapper = new ObjectMapper();
             try {
                 Video video = mapper.readValue(outputLine, Video.class);
@@ -130,20 +130,23 @@ public class YoutubeService {
         return videos;
     }
 
-    public void downloadVideo(String url, String folder) {
-        //folder needs to be channelDir
+    /**
+     * Downloads a single Video. Relies on video.url being set. video.directory can optionally be set.
+     * @param video
+     */
+    public void downloadVideo(Video video) {
         String outputFileLocation = baseDir + "/";
-        if(StringUtils.hasText(folder)) {
-            outputFileLocation += folder + "/";
+        if(StringUtils.hasText(video.getDirectory())) {
+            outputFileLocation += video.getDirectory() + "/";
         }
         outputFileLocation += "%(upload_date)s - %(title)s - %(id)s.%(ext)s";
         String[] command = {
                 YTDL_PATH,
                 "-o",
                 outputFileLocation,
-                url
+                video.getUrl(),
         };
-        logger.info("Downloading video URL '{}' to location '{}'", url, outputFileLocation);
+        logger.info("Downloading video URL '{}' to location '{}'", video.getUrl(), outputFileLocation);
         Process process = null;
         try {
             process = new ProcessBuilder(command).start();
@@ -155,7 +158,15 @@ public class YoutubeService {
         String line;
         while (true) {
             try {
-                if ((line = processOutputReader.readLine()) == null) break;
+                line = processOutputReader.readLine();
+                logger.debug(line);
+                if (line == null){
+                    break;
+                } else {
+                    if(isDownloadStatus(line)) {
+                        video.setDownloadStatus(toPrettyDownloadStatus(line));
+                    }
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -180,7 +191,11 @@ public class YoutubeService {
         logger.info("Successfully validated channel {}, found {} videos", channel.getChannelName(), videos.size());
     }
 
-    public String getYoutubeURLById(String videoId) {
-        return "https://www.youtube.com/watch?v=" + videoId;
+    public boolean isDownloadStatus(String string) {
+        return string.contains("[download") && string.contains("%") && string.contains("ETA");
+    }
+
+    public String toPrettyDownloadStatus(String string) {
+        return string.replace("[download]", "").trim();
     }
 }

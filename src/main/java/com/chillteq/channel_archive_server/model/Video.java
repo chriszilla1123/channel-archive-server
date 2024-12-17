@@ -13,6 +13,7 @@ public class Video {
     private Date download_date;
     private String directory;
     private String channelName;
+    private String downloadStatus; //Set by yt-dl as the video is downloading. eg: "10.0% of    4.97MiB at    5.07MiB/s ETA 00:00"
 
     public String getId() {
         return id;
@@ -62,6 +63,14 @@ public class Video {
         this.channelName = channelName;
     }
 
+    public String getDownloadStatus() {
+        return downloadStatus;
+    }
+
+    public void setDownloadStatus(String downloadStatus) {
+        this.downloadStatus = downloadStatus;
+    }
+
     @Override
     public String toString() {
         return "Video{" +
@@ -71,6 +80,7 @@ public class Video {
                 ", upload_date='" + download_date + '\'' +
                 ", directory='" + directory + '\'' +
                 ", channelName='" + channelName + '\'' +
+                ", downloadStatus='" + downloadStatus + '\'' +
                 '}';
     }
 }
