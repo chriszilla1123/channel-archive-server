@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController()
@@ -32,20 +31,10 @@ public class ConfigurationController {
     }
 
     @PutMapping("/channels/update")
-    public ResponseEntity<Object> updateChannels(@RequestBody ArrayList<Channel> channels) {
+    public ResponseEntity<Object> updateChannels(@RequestBody List<Channel> channels) {
         try {
             List<Channel> updatedChannels = service.updateChannels(channels);
             return ResponseEntity.ok(updatedChannels);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(e.getMessage());
-        }
-    }
-
-    @GetMapping("/channels/validate")
-    public ResponseEntity<Object> validateChannels() {
-        try {
-            List<Channel> channels = service.validateChannels();
-            return ResponseEntity.ok(channels);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }

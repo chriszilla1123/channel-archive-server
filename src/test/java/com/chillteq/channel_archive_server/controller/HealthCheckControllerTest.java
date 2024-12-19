@@ -22,12 +22,20 @@ class HealthCheckControllerTest {
     @Value("${PASS}")
     public String password;
 
-
     @Autowired
     private MockMvc mockMvc;
 
     @Test
-    void testHealthCheck() {
+    public void testHealthCheck() {
+        HealthCheckController controller = new HealthCheckController();
+        assertEquals("UP", controller.healthCheck().getBody());
+    }
+
+    /**
+     * Verifies authentication is working
+     */
+    @Test
+    public void testHealthCheck_Auth() {
         try {
             String base64Credentials = new String(Base64.getEncoder().encode((username + ":" + password).getBytes()));
             String authHeader = "Basic " + base64Credentials;

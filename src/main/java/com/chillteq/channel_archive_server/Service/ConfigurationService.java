@@ -1,5 +1,6 @@
 package com.chillteq.channel_archive_server.Service;
 
+import com.chillteq.channel_archive_server.constant.Constants;
 import com.chillteq.channel_archive_server.exception.ConfigParseException;
 import com.chillteq.channel_archive_server.model.Channel;
 import com.chillteq.channel_archive_server.model.Video;
@@ -13,26 +14,24 @@ import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class ConfigurationService {
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationService.class);
 
     @Autowired
-    private YoutubeService youtubeService;
+    private FileService fileService;
 
-    private final String userDefinedConfigFileLocation = "/userDefined.config";
-    private final String userDefinedHistoryFileLocation = "/history.json";
-    private final String exampleConfigResourceName = "example.config";
+    @Autowired
+    private YoutubeService youtubeService;
 
     public List<Channel> getChannels() throws ConfigParseException {
         InputStream in;
         try {
-            in = new FileInputStream(userDefinedConfigFileLocation);
+            in = fileService.getFileInputStream(Constants.userDefinedConfigFileLocation);
             logger.info("Using user defined config file");
         } catch (FileNotFoundException e) {
-            in = Thread.currentThread().getContextClassLoader().getResourceAsStream(exampleConfigResourceName);
+            in = Thread.currentThread().getContextClassLoader().getResourceAsStream(Constants.exampleConfigResourceName);
             logger.info("User defined config file not found, falling back to example file");
         }
 
@@ -67,32 +66,7 @@ public class ConfigurationService {
         } catch (Exception e) {
             throw new Exception("Failed to validate channels");
         }
-        return persistChannels(channels);
-    }
-
-    public List<Channel> persistChannels(List<Channel> channels) {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            mapper.writeValue(new File(userDefinedConfigFileLocation), channels);
-        } catch (IOException e) {
-            logger.error("Error writing config file: {}", e.getMessage());
-        }
-        return channels;
-    }
-
-    public List<Channel> validateChannels() throws Exception {
-        List<Channel> channels = getChannels();
-        AtomicReference<String> channelName = new AtomicReference<>();
-        try {
-            channels.forEach(channel -> {
-                channelName.set(channel.getChannelName());
-                youtubeService.validateChannel(channel);
-            });
-        } catch (Exception e) {
-            logger.error("Failed to validate channel: {} with the following exception: {}", channelName, e.getMessage());
-            throw new Exception("Failed to validate channel: " + channelName + " with the following exception: " + e);
-        }
-        return channels;
+        return fileService.persistChannels(channels);
     }
 
     public void setURLs(List<Channel> channels) {
@@ -100,24 +74,15 @@ public class ConfigurationService {
     }
 
     public void setURL(Channel channel) {
-        if (channel.getChannelId().startsWith("http")
-                || channel.getChannelId().startsWith("www")
-                || channel.getChannelId().startsWith("youtube.com")) {
-            //If user sets the full channel URL
-            channel.setChannelUrl(channel.getChannelId() + "/videos");
-        }
-        else if (channel.getChannelId().startsWith("@")) {
-            //If user sets just the @Name
-            channel.setChannelUrl("https://youtube.com/" + channel.getChannelId() + "/videos");
-        }
-        else {
-            //If user sets the channel ID
-            channel.setChannelUrl("http://youtube.com" + channel.getChannelId() + "/videos");
+        if (channel.getChannelId().startsWith("@")) {
+            channel.setChannelUrl("https://www.youtube.com/" + channel.getChannelId() + "/videos");
+        } else {
+            throw new ConfigParseException("Error: Invalid channel ID: " + channel.getChannelId());
         }
     }
 
     public List<Video> getHistory() throws FileNotFoundException {
-        InputStream in = new FileInputStream(userDefinedHistoryFileLocation);
+        InputStream in = fileService.getFileInputStream(Constants.userDefinedHistoryFileLocation);
         try {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode jsonNode = mapper.readTree(in);
@@ -129,31 +94,11 @@ public class ConfigurationService {
         }
     }
 
-    public void setHistory(List<Video> videos) {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            mapper.writeValue(new File(userDefinedHistoryFileLocation), videos);
-        } catch (Exception e) {
-            logger.error("Error writing history file: {}", e.getMessage());
-            throw new RuntimeException(e);
-        }
-    }
-
-    public List<Video> updateHistory(List<Video> videos) {
+    public List<Video> updateHistory(List<Video> videos) throws IOException {
         logger.info("Attempting to update history with list: {}", videos);
         if(videos == null || videos.isEmpty()) {
             return null;
         }
-        return persistHistory(videos);
-    }
-
-    public List<Video> persistHistory(List<Video> videos) {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            mapper.writeValue(new File(userDefinedHistoryFileLocation), videos);
-        } catch (Exception e) {
-            logger.error(String.valueOf(e));
-        }
-        return videos;
+        return fileService.persistHistory(videos);
     }
 }

@@ -1,12 +1,15 @@
 package com.chillteq.channel_archive_server.Service;
 
+import com.chillteq.channel_archive_server.constant.Constants;
 import com.chillteq.channel_archive_server.model.Channel;
 import com.chillteq.channel_archive_server.model.Video;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,7 +22,32 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class FileService {
     private static final Logger logger = LoggerFactory.getLogger(FileService.class);
 
-    private String baseDir = "/baseDirectory";
+    @Autowired
+    private ObjectMapper mapper;
+
+    public InputStream getFileInputStream(String dir) throws FileNotFoundException {
+        return new FileInputStream(dir);
+    }
+
+    public List<Channel> persistChannels(List<Channel> channels) throws IOException {
+        try {
+            mapper.writeValue(new File(Constants.userDefinedConfigFileLocation), channels);
+        } catch (IOException e) {
+            logger.error("Error writing config file: {}", e.getMessage());
+            throw e;
+        }
+        return channels;
+    }
+
+    public List<Video> persistHistory(List<Video> videos) throws IOException {
+        try {
+            mapper.writeValue(new File(Constants.userDefinedHistoryFileLocation), videos);
+        } catch (Exception e) {
+            logger.error("Error writing history file: {}", e.getMessage());
+            throw e;
+        }
+        return videos;
+    }
 
     public boolean folderExists(Path path) {
         return Files.exists(path) && Files.isDirectory(path);
@@ -38,8 +66,8 @@ public class FileService {
      * @see Video
      */
     public List<Video> filterDownloadedVideosFromChannel(Channel channel) {
-        Path channelPath = Paths.get(baseDir + "/" + channel.getChannelDir());
-        if(!folderExists(baseDir)) {
+        Path channelPath = Paths.get(Constants.baseVideoDirectory + "/" + channel.getChannelDir());
+        if(!folderExists(Constants.baseVideoDirectory)) {
             throw new IllegalStateException("Base directory does not exists or is not a directory");
         }
         if(!folderExists(channelPath)) {
@@ -57,7 +85,7 @@ public class FileService {
                 filesFoundOnSystem.add(foundPath.getFileName().toString());
             }
         } catch (IOException e) {
-            throw new RuntimeException("Error open directory " + channelPath.toString(), e);
+            throw new RuntimeException("Error open directory " + channelPath, e);
         }
 
         List<Video> filteredVideos = channel.getVideos().stream().filter(video -> {
