@@ -3,7 +3,7 @@ package com.chillteq.channel_archive_server.Service;
 import com.chillteq.channel_archive_server.constant.Constants;
 import com.chillteq.channel_archive_server.exception.ConfigParseException;
 import com.chillteq.channel_archive_server.model.Channel;
-import com.chillteq.channel_archive_server.model.Video;
+import com.chillteq.channel_archive_server.model.DownloadHistory;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -81,24 +82,22 @@ public class ConfigurationService {
         }
     }
 
-    public List<Video> getHistory() throws FileNotFoundException {
+    public DownloadHistory getHistory() throws FileNotFoundException {
         InputStream in = fileService.getFileInputStream(Constants.userDefinedHistoryFileLocation);
         try {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode jsonNode = mapper.readTree(in);
-            List<Video> videos = mapper.convertValue(jsonNode, new TypeReference<>(){});
-            return videos;
+            DownloadHistory history = mapper.convertValue(jsonNode, new TypeReference<>(){});
+            if(history.getCompleted() == null) {
+                history.setCompleted(new ArrayList<>());
+            }
+            if(history.getFailed() == null) {
+                history.setCompleted(new ArrayList<>());
+            }
+            return history;
         } catch (IOException e) {
             logger.error("Error parsing history file: {}", e.getMessage());
             throw new ConfigParseException("Error parsing history file: " + e.getMessage());
         }
-    }
-
-    public List<Video> updateHistory(List<Video> videos) throws IOException {
-        logger.info("Attempting to update history with list: {}", videos);
-        if(videos == null || videos.isEmpty()) {
-            return null;
-        }
-        return fileService.persistHistory(videos);
     }
 }

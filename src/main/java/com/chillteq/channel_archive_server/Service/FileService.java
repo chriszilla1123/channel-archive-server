@@ -2,6 +2,7 @@ package com.chillteq.channel_archive_server.Service;
 
 import com.chillteq.channel_archive_server.constant.Constants;
 import com.chillteq.channel_archive_server.model.Channel;
+import com.chillteq.channel_archive_server.model.DownloadHistory;
 import com.chillteq.channel_archive_server.model.Video;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -39,14 +40,14 @@ public class FileService {
         return channels;
     }
 
-    public List<Video> persistHistory(List<Video> videos) throws IOException {
+    public DownloadHistory persistHistory(DownloadHistory downloadHistory) throws IOException {
         try {
-            mapper.writeValue(new File(Constants.userDefinedHistoryFileLocation), videos);
+            mapper.writeValue(new File(Constants.userDefinedHistoryFileLocation), downloadHistory);
         } catch (Exception e) {
             logger.error("Error writing history file: {}", e.getMessage());
             throw e;
         }
-        return videos;
+        return downloadHistory;
     }
 
     public boolean folderExists(Path path) {

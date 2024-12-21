@@ -1,9 +1,9 @@
 package com.chillteq.channel_archive_server.Service;
 
 import com.chillteq.channel_archive_server.model.Channel;
+import com.chillteq.channel_archive_server.model.DownloadHistory;
 import com.chillteq.channel_archive_server.model.Video;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -67,12 +67,13 @@ class FileServiceTest {
         try {
             Video video = new Video();
             List<Video> videos = List.of(video);
+            DownloadHistory history = new DownloadHistory(videos, videos);
             Mockito.doNothing().when(mapper).writeValue(Mockito.any(File.class), Mockito.any());
 
-            List<Video> result = service.persistHistory(videos);
+            DownloadHistory result = service.persistHistory(history);
 
-            assertEquals(videos, result);
-            Mockito.verify(mapper, Mockito.times(1)).writeValue(Mockito.any(File.class), Mockito.eq(videos));
+            assertEquals(history, result);
+            Mockito.verify(mapper, Mockito.times(1)).writeValue(Mockito.any(File.class), Mockito.eq(history));
         } catch (Exception e) {
             fail();
         }
