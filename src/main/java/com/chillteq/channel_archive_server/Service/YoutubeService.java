@@ -142,6 +142,8 @@ public class YoutubeService {
         outputFileLocation += "%(upload_date)s - %(title)s - %(id)s.%(ext)s";
         String[] command = {
                 YTDL_PATH,
+                "-f",
+                "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4] / bv*+ba/b", // Download the best mp4 video available, or the best video if no mp4 available
                 "-o",
                 outputFileLocation,
                 video.getUrl(),
