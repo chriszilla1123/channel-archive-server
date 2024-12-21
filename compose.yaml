@@ -12,4 +12,4 @@ services:
     volumes:
       - /c/Documents/example.config:/userDefined.config
       - /c/Documents/baseDirectory/:/baseDirectory/
-      - /c/Documents/history:/history.json
+      - /c/Documents/history.json:/history.json
