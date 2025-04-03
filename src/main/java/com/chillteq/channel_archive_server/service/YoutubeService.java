@@ -1,4 +1,4 @@
-package com.chillteq.channel_archive_server.Service;
+package com.chillteq.channel_archive_server.service;
 
 import com.chillteq.channel_archive_server.exception.YoutubeDownloadException;
 import com.chillteq.channel_archive_server.model.Channel;
@@ -13,7 +13,6 @@ import org.springframework.util.StringUtils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;

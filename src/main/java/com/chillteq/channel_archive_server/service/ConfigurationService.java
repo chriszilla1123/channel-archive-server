@@ -1,4 +1,4 @@
-package com.chillteq.channel_archive_server.Service;
+package com.chillteq.channel_archive_server.service;
 
 import com.chillteq.channel_archive_server.constant.Constants;
 import com.chillteq.channel_archive_server.exception.ConfigParseException;
@@ -53,21 +53,21 @@ public class ConfigurationService {
         if(channels == null || channels.isEmpty()) {
             throw new Exception("No channels passed");
         }
-        try {
-            channels.forEach(channel -> {
-                try {
-                    setURL(channel);
-                    youtubeService.validateChannel(channel);
-                    channel.prepareForJsonSave();
-                } catch (Exception e) {
-                    logger.error("Failed to validate channel: {} with the following exception: {}", channel.getChannelName(), e.getMessage());
-                    throw e;
-                }
-            });
-        } catch (Exception e) {
-            throw new Exception("Failed to validate channels");
+        List<Channel> validatedChannels = new ArrayList<>();
+        for (Channel channel: channels) {
+            try {
+                setURL(channel);
+                youtubeService.validateChannel(channel);
+                channel.prepareForJsonSave();
+                validatedChannels.add(channel);
+            } catch (Exception e) {
+                logger.error("Failed to validate channel, skipping: {} with the following exception: {}", channel.getChannelName(), e.getMessage());
+            }
+        };
+        if(validatedChannels.isEmpty()) {
+            throw new Exception("All channels failed validation");
         }
-        return fileService.persistChannels(channels);
+        return fileService.persistChannels(validatedChannels);
     }
 
     public void setURLs(List<Channel> channels) {

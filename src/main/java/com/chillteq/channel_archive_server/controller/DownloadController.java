@@ -1,6 +1,6 @@
 package com.chillteq.channel_archive_server.controller;
 
-import com.chillteq.channel_archive_server.Service.DownloadService;
+import com.chillteq.channel_archive_server.service.DownloadService;
 import com.chillteq.channel_archive_server.model.Channel;
 import com.chillteq.channel_archive_server.model.DownloadQueueModel;
 import com.chillteq.channel_archive_server.model.DownloadStatisticsModel;
