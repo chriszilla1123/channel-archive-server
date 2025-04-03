@@ -1,7 +1,7 @@
 package com.chillteq.channel_archive_server.controller;
 
-import com.chillteq.channel_archive_server.Service.ConfigurationService;
-import com.chillteq.channel_archive_server.Service.YoutubeService;
+import com.chillteq.channel_archive_server.service.ConfigurationService;
+import com.chillteq.channel_archive_server.service.YoutubeService;
 import com.chillteq.channel_archive_server.exception.ConfigParseException;
 import com.chillteq.channel_archive_server.model.Channel;
 import org.junit.jupiter.api.Test;

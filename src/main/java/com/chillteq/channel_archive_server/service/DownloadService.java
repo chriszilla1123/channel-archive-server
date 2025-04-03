@@ -1,5 +1,6 @@
-package com.chillteq.channel_archive_server.Service;
+package com.chillteq.channel_archive_server.service;
 
+import com.chillteq.channel_archive_server.exception.YoutubeDownloadException;
 import com.chillteq.channel_archive_server.model.*;
 import com.chillteq.channel_archive_server.model.request.DownloadRequestModel;
 import jakarta.annotation.PostConstruct;
@@ -58,24 +59,27 @@ public class DownloadService {
     public List<Channel> downloadArchive(DownloadRequestModel request) {
         logger.info("Download Archive process started with request: {}", request);
         List<Channel> channels = configurationService.getChannels();
-        channels.forEach(channel -> {
+        for (Channel channel: channels) {
             //Fetch all videos available on channel
-            String logMessage = String.format("Processing channel: [name: %s, id: %s, directory: %s]", channel.getChannelName(), channel.getChannelId(), channel.getChannelDir());
-            logger.info(logMessage);
-            channel.setVideos(youtubeService.getVideoMetadataByChannel(channel));
+            logger.info("Processing channel: {}", channel.toShortString());
+            try {
+                channel.setVideos(youtubeService.getVideoMetadataByChannel(channel));
+            } catch (YoutubeDownloadException ytdlException) {
+                logger.error("Failed to process channel: {}", channel.toShortString());
+                continue;
+            }
 
             //Filter out videos already downloaded
             List<Video> filteredVideos = fileService.filterDownloadedVideosFromChannel(channel);
-            logMessage = String.format("\tFound %s videos on channel: downloading %s and skipping %s already downloaded",
+            logger.info("Found {} videos on channel. Downloading {} and skipping {} already downloaded",
                     channel.getVideos().size(), filteredVideos.size(), channel.getVideos().size() - filteredVideos.size());
-            logger.info(logMessage);
 
             //Add videos to the download queue
             channel.setVideos(filteredVideos);
             if(!request.isDryRun()) {
                 pendingDownloads.addAll(filteredVideos);
             }
-        });
+        };
         if(!request.isDryRun()) {
                 startDownloadQueue();
         }

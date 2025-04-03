@@ -74,6 +74,11 @@ public class Channel {
         this.setVideos(null);
     }
 
+    public String toShortString() {
+        return String.format("[name: %s, id: %s, directory: %s, channelUrl: %s, playlistUrl: %s]",
+                channelName, channelId, channelDir, channelUrl, playlistUrl);
+    }
+
     @Override
     public String toString() {
         return "Channel{" +

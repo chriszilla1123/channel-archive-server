@@ -1,4 +1,4 @@
-package com.chillteq.channel_archive_server.Service;
+package com.chillteq.channel_archive_server.service;
 
 import com.chillteq.channel_archive_server.constant.Constants;
 import com.chillteq.channel_archive_server.model.Channel;

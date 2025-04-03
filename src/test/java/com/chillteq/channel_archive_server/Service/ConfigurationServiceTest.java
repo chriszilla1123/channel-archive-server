@@ -1,4 +1,4 @@
-package com.chillteq.channel_archive_server.Service;
+package com.chillteq.channel_archive_server.service;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -174,6 +174,40 @@ class ConfigurationServiceTest {
         try {
             service.updateChannels(channels);
             fail();
+        } catch (Exception e) {
+            List<ILoggingEvent> logsList = listAppender.list;
+            List<String> logMessages = logsList.stream()
+                    .map(ILoggingEvent::getMessage)
+                    .filter(message -> message.contains("Failed to validate channel"))
+                    .collect(Collectors.toList());
+            assertThat(logMessages).isNotEmpty();
+        }
+    }
+
+    /**
+     * Verifies that only channels passing the validation will be persisted and failed channels will be ignored.
+     */
+    @Test
+    public void testUpdateChannels_partialValidationFailure() {
+        Channel validChannel = new Channel();
+        validChannel.setChannelName("Youtube");
+        validChannel.setChannelId("@Youtube");
+
+        Channel invalidChannel = new Channel();
+        invalidChannel.setChannelName("SpaceX");
+        invalidChannel.setChannelId("@SpaceX");
+        Mockito.doThrow(new RuntimeException()).when(youtubeService).validateChannel(invalidChannel);
+        Mockito.doNothing().when(youtubeService).validateChannel(validChannel);
+        try {
+            Mockito.when(fileService.persistChannels(Mockito.anyList())).thenAnswer(invocation -> invocation.getArgument(0));
+        } catch (Exception e) {
+            fail();
+        }
+
+        List<Channel> channels = List.of(validChannel, invalidChannel);
+        try {
+            List<Channel> persistedChannels = service.updateChannels(channels);
+            assertEquals(1, persistedChannels.size());
         } catch (Exception e) {
             List<ILoggingEvent> logsList = listAppender.list;
             List<String> logMessages = logsList.stream()
