@@ -13,6 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 public class DownloadService {
@@ -31,6 +32,7 @@ public class DownloadService {
     private ConcurrentMap<String, Video> inProgressDownloads = new ConcurrentHashMap<>();
     private ConcurrentMap<String, Video> completedDownloads = new ConcurrentHashMap<>();
     private ConcurrentMap<String, Video> failedDownloads = new ConcurrentHashMap<>();
+    private AtomicBoolean downloadInProgress = new AtomicBoolean(false);
 
     @PostConstruct
     public void init() {
@@ -65,7 +67,7 @@ public class DownloadService {
             try {
                 channel.setVideos(youtubeService.getVideoMetadataByChannel(channel));
             } catch (YoutubeDownloadException ytdlException) {
-                logger.error("Failed to process channel: {}", channel.toShortString());
+                logger.error("Failed to process channel, skipping: {}", channel.toShortString());
                 continue;
             }
 
@@ -79,14 +81,34 @@ public class DownloadService {
             if(!request.isDryRun()) {
                 pendingDownloads.addAll(filteredVideos);
             }
-        };
+        }
         if(!request.isDryRun()) {
                 startDownloadQueue();
         }
         return channels;
     }
 
+    public boolean downloadVideo(DownloadRequestModel request) {
+        if ( null == request.getOneOffVideoUrl() || request.getOneOffVideoUrl().isBlank()) {
+            String logText = String.format("A video URL is required when downloading an individual video. %s", request);
+            logger.error(logText);
+            throw new IllegalArgumentException(logText);
+        }
+        Video video = youtubeService.getVideoMetadataByVideoUrl(request.getOneOffVideoUrl());
+        if (null != request.getOneOffVideoDirectory() && !request.getOneOffVideoDirectory().isBlank()) {
+            video.setDirectory(request.getOneOffVideoDirectory());
+        }
+        if(!request.isDryRun()) {
+            pendingDownloads.add(video);
+            startDownloadQueue();
+        }
+        return true;
+    }
+
     private void startDownloadQueue() {
+        if (!downloadInProgress.compareAndSet(false, true)) {
+            return;
+        }
         Video video;
         while ((video = pendingDownloads.poll()) != null) {
            inProgressDownloads.put(video.getId(), video);
@@ -101,6 +123,7 @@ public class DownloadService {
                updateHistory();
            }
         }
+        downloadInProgress.set(false);
     }
 
     public DownloadQueueModel getQueue() {

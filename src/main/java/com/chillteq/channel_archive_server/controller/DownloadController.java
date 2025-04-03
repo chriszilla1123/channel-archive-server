@@ -27,6 +27,17 @@ public class DownloadController {
         return ResponseEntity.ok().body(service.downloadArchive(request));
     }
 
+    /**
+     * Adds an individual video to the download queue and starts it.
+     * @return
+     */
+
+    @PostMapping(consumes = "application/json", produces = "application/json")
+    @RequestMapping(value = "/oneoff")
+    public ResponseEntity<Boolean> downloadVideo(@RequestBody DownloadRequestModel request) {
+        return ResponseEntity.ok().body(service.downloadVideo(request));
+    }
+
     @GetMapping(value="queue")
     public ResponseEntity<DownloadQueueModel> getQueue() {
         return ResponseEntity.ok().body(service.getQueue());
