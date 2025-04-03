@@ -73,13 +73,65 @@ public class YoutubeService {
      */
     public List<Video> getVideoMetadataByChannel(Channel channel) {
         if(channel.getChannelUrl() == null) {
-            throw new IllegalArgumentException("Call to YoutubeService.getVideosByChannel with null channelUrl. " + channel);
+            throw new IllegalArgumentException("Call to YoutubeService.getVideoMetadataByChannel with null channelUrl. " + channel);
         }
+        List<String> processOutput = executeYtdlVideoMetadataCommand(channel.getChannelUrl());
+        //Parse JSON response
+        List<Video> videos = new ArrayList<>();
+        processOutput.forEach(outputLine -> {
+            logger.debug(outputLine);
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                Video video = mapper.readValue(outputLine, Video.class);
+                video.setChannelName(channel.getChannelName());
+                video.setDownload_date(new Date());
+                video.setDirectory(channel.getChannelDir());
+                videos.add(video);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return videos;
+    }
+
+    /**
+     * Fetches the metadata for a given video URL
+     *
+     * @param videoUrl the url to the video to get metadata for
+     * @return the Video object with metadata fields set
+     * @see Video
+     */
+    public Video getVideoMetadataByVideoUrl(String videoUrl) {
+        if(null == videoUrl) {
+            throw new IllegalArgumentException("Call to YoutubeService.getVideoMetadataByVideoUrl with null URL.");
+        }
+        String processOutput = executeYtdlVideoMetadataCommand(videoUrl).getFirst();
+        //Parse JSON response
+        logger.debug(processOutput);
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            Video video = mapper.readValue(processOutput, Video.class);
+            video.setUrl(videoUrl);
+            video.setDownload_date(new Date());
+            return video;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Fetches the metadata for the video(s) for a given video URL, playlist URL, or channel URL
+     *
+     * @param url the video, playlist, or channel URL
+     * @return the list of JSON strings containing metadata for 1 or more videos. Should be mapped to a Video object
+     * @see Video
+     */
+    private List<String> executeYtdlVideoMetadataCommand(String url) {
         String[] command = {
                 YTDL_PATH,
                 "--flat-playlist",
                 "-j",
-                channel.getChannelUrl()
+                url
         };
         Process process = null;
         try {
@@ -111,22 +163,7 @@ public class YoutubeService {
             logger.info("yt-dl - getVideoMetadataByChannel - yt-dl returned a failed exitCode {} using command {}", exitCode, Arrays.toString(command));
             throw new YoutubeDownloadException("yt-dl returned a failed exitCode " + exitCode + " using command " + Arrays.toString(command));
         }
-        //Parse JSON response
-        List<Video> videos = new ArrayList<>();
-        processOutput.forEach(outputLine -> {
-            logger.debug(outputLine);
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                Video video = mapper.readValue(outputLine, Video.class);
-                video.setChannelName(channel.getChannelName());
-                video.setDownload_date(new Date());
-                video.setDirectory(channel.getChannelDir());
-                videos.add(video);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        return videos;
+        return processOutput;
     }
 
     /**
