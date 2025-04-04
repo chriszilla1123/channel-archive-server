@@ -48,10 +48,10 @@ public class ConfigurationService {
         }
     }
 
-    public List<Channel> updateChannels(List<Channel> channels) throws Exception {
+    public List<Channel> updateChannels(List<Channel> channels) {
         logger.info("Attempting to update channel list with: {}", channels);
         if(channels == null || channels.isEmpty()) {
-            throw new Exception("No channels passed");
+            throw new IllegalArgumentException("No channels passed");
         }
         List<Channel> validatedChannels = new ArrayList<>();
         for (Channel channel: channels) {
@@ -65,7 +65,7 @@ public class ConfigurationService {
             }
         };
         if(validatedChannels.isEmpty()) {
-            throw new Exception("All channels failed validation");
+            throw new IllegalStateException("All channels failed validation");
         }
         return fileService.persistChannels(validatedChannels);
     }

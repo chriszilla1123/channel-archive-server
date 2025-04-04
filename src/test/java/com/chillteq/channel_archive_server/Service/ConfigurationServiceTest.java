@@ -232,7 +232,7 @@ class ConfigurationServiceTest {
             Mockito.verify(youtubeService, Mockito.never()).validateChannel(Mockito.any());
             try {
                 Mockito.verify(fileService, Mockito.never()).persistChannels(Mockito.any());
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
         }
@@ -251,7 +251,7 @@ class ConfigurationServiceTest {
             Mockito.verify(youtubeService, Mockito.never()).validateChannel(Mockito.any());
             try {
                 Mockito.verify(fileService, Mockito.never()).persistChannels(Mockito.any());
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
         }
