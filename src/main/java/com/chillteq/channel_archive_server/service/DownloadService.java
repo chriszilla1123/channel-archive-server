@@ -139,8 +139,8 @@ public class DownloadService {
     private void updateHistory() {
         try {
             fileService.persistHistory(new DownloadHistory(completedDownloads.values(), failedDownloads.values()));
-        } catch (IOException io) {
-            logger.error("IO exception on persisting history: {}", io.getMessage());
+        } catch (Exception e) {
+            logger.error("Exception on persisting history: {}", e.getMessage());
         }
     }
 }

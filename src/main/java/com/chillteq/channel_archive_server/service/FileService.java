@@ -30,22 +30,22 @@ public class FileService {
         return new FileInputStream(dir);
     }
 
-    public List<Channel> persistChannels(List<Channel> channels) throws IOException {
+    public List<Channel> persistChannels(List<Channel> channels) {
         try {
             mapper.writeValue(new File(Constants.userDefinedConfigFileLocation), channels);
         } catch (IOException e) {
             logger.error("Error writing config file: {}", e.getMessage());
-            throw e;
+            throw new RuntimeException(e);
         }
         return channels;
     }
 
-    public DownloadHistory persistHistory(DownloadHistory downloadHistory) throws IOException {
+    public DownloadHistory persistHistory(DownloadHistory downloadHistory) {
         try {
             mapper.writeValue(new File(Constants.userDefinedHistoryFileLocation), downloadHistory);
         } catch (Exception e) {
             logger.error("Error writing history file: {}", e.getMessage());
-            throw e;
+            throw new RuntimeException(e);
         }
         return downloadHistory;
     }
