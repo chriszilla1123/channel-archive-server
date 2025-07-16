@@ -15,9 +15,11 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
 @Service
 public class FileService {
@@ -48,14 +50,6 @@ public class FileService {
             throw new RuntimeException(e);
         }
         return downloadHistory;
-    }
-
-    public boolean folderExists(Path path) {
-        return Files.exists(path) && Files.isDirectory(path);
-    }
-
-    public boolean folderExists(String directory) {
-        return folderExists(Paths.get(directory));
     }
 
     /**
@@ -99,5 +93,54 @@ public class FileService {
             return !videoAlreadyDownloaded.get();
         }).toList();
         return filteredVideos;
+    }
+
+    public List<Channel> getDownloadedChannels() throws IOException {
+        List<Channel> channels = new ArrayList<>();
+        List<String> channelDirectories = getAllChannelDirectories();
+        channelDirectories.forEach((String path) -> {
+            Channel channel = new Channel();
+            channel.setChannelDir(path);
+            try {
+                List<Video> videos = new ArrayList<>();
+                List<String> videoNames = getAllVideosByDirectory(path);
+                videoNames.stream().forEach((String video) -> {
+                    Video foundVideo = new Video();
+                    foundVideo.setTitle(video);
+                    videos.add(foundVideo);
+                });
+                channel.setVideos(videos);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            channels.add(channel);
+        });
+        return channels;
+    }
+
+    private List<String> getAllChannelDirectories() throws IOException {
+        List<String> channelDirectories = new ArrayList<>();
+        Stream<Path> stream = Files.list(Paths.get(Constants.baseVideoDirectory));
+        stream.filter(Files::isDirectory).forEach((Path path) -> {
+            channelDirectories.add(path.getFileName().toString());
+        });
+        return channelDirectories;
+    }
+
+    private List<String> getAllVideosByDirectory(String path) throws IOException {
+        List<String> videos = new ArrayList<>();
+        Stream<Path> stream = Files.list(Paths.get(Constants.baseVideoDirectory + File.separator + path));
+        stream.map((Path foundPath) -> foundPath.getFileName().toString()).forEach((String filename) -> {
+            videos.add(filename);
+        });
+        return videos;
+    }
+
+    private boolean folderExists(Path path) {
+        return Files.exists(path) && Files.isDirectory(path);
+    }
+
+    private boolean folderExists(String directory) {
+        return folderExists(Paths.get(directory));
     }
 }

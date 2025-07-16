@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.time.OffsetDateTime;
 import java.util.Date;
+import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Video {
@@ -14,6 +15,7 @@ public class Video {
     private String directory;
     private String channelName;
     private String downloadStatus; //Set by yt-dl as the video is downloading. eg: "10.0% of    4.97MiB at    5.07MiB/s ETA 00:00"
+    private List<String> tags; //Stored as JSON in a separate file with the .tags extension
 
     public String getId() {
         return id;
@@ -71,6 +73,14 @@ public class Video {
         this.downloadStatus = downloadStatus;
     }
 
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
+
     @Override
     public String toString() {
         return "Video{" +
@@ -81,6 +91,7 @@ public class Video {
                 ", directory='" + directory + '\'' +
                 ", channelName='" + channelName + '\'' +
                 ", downloadStatus='" + downloadStatus + '\'' +
+                ", tags='" + tags + '\'' +
                 '}';
     }
 }
