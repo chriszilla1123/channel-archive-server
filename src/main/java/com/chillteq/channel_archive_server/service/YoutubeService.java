@@ -1,18 +1,23 @@
 package com.chillteq.channel_archive_server.service;
 
+import com.chillteq.channel_archive_server.constant.Constants;
 import com.chillteq.channel_archive_server.exception.YoutubeDownloadException;
 import com.chillteq.channel_archive_server.model.Channel;
 import com.chillteq.channel_archive_server.model.Video;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -22,12 +27,12 @@ import java.util.List;
 public class YoutubeService {
     Logger logger = LoggerFactory.getLogger(YoutubeService.class);
 
-    private final String baseDir = "/baseDirectory";
-    private final String YTDL_PATH = "/root/.local/bin/yt-dlp";
+    @Value("${COOKIES:#{null}}")
+    public Strings cookies;
 
     public String getYtdlVersion() {
         String[] command = {
-                YTDL_PATH,
+                Constants.ytdlPath,
                 "--version"
         };
         Process process = null;
@@ -128,11 +133,25 @@ public class YoutubeService {
      */
     private List<String> executeYtdlVideoMetadataCommand(String url) {
         String[] command = {
-                YTDL_PATH,
+                Constants.ytdlPath,
                 "--flat-playlist",
                 "-j",
                 url
         };
+
+        if(cookiesFileExists()) {
+            logger.info("Using user-provided cookies file");
+            command = new String[]{
+                    Constants.ytdlPath,
+                    "--flat-playlist",
+                    "-j",
+                    "--cookies",
+                    Constants.cookiesFileLocation,
+                    url
+            };
+        } else {
+            logger.info("No user-provided cookies file found");
+        }
         Process process = null;
         try {
             process = new ProcessBuilder(command).start();
@@ -171,17 +190,19 @@ public class YoutubeService {
      * @param video
      */
     public void downloadVideo(Video video) {
-        String outputFileLocation = baseDir + "/";
+        String outputFileLocation = Constants.baseVideoDirectory + "/";
         if(StringUtils.hasText(video.getDirectory())) {
             outputFileLocation += video.getDirectory() + "/";
         }
         outputFileLocation += "%(upload_date)s - %(title)s - %(id)s.%(ext)s";
         String[] command = {
-                YTDL_PATH,
+                Constants.ytdlPath,
                 "-f",
                 "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4] / bv*+ba/b", // Download the best mp4 video available, or the best video if no mp4 available
                 "-o",
                 outputFileLocation,
+                cookiesFileExists() ? "-f" : null,
+                cookiesFileExists() ? Constants.cookiesFileLocation : null,
                 video.getUrl(),
         };
         logger.info("Downloading video URL '{}' to location '{}'", video.getUrl(), outputFileLocation);
@@ -235,5 +256,9 @@ public class YoutubeService {
 
     public String toPrettyDownloadStatus(String string) {
         return string.replace("[download]", "").trim();
+    }
+
+    private boolean cookiesFileExists() {
+        return Files.exists(Paths.get(Constants.cookiesFileLocation));
     }
 }
