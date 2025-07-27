@@ -240,7 +240,8 @@ public class YoutubeService {
         if(exitCode == 0) {
             logger.info("yt-dl - downloadVideo - process exited with exit code {}", exitCode);
         } else {
-            logger.info("yt-dl - downloadVideo - yt-dl returned a failed exitCode {} using command {}", exitCode, Arrays.toString(command));
+            logger.error("yt-dl - downloadVideo - yt-dl returned a failed exitCode {} using command {}", exitCode, Arrays.toString(command));
+            logger.error(String.valueOf(processOutput));
             throw new YoutubeDownloadException("yt-dl returned a failed exitCode " + exitCode + " using command " + Arrays.toString(command));
         }
     }
