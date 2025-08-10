@@ -106,7 +106,9 @@ public class FileService {
                 List<String> videoNames = getAllVideosByDirectory(path);
                 videoNames.stream().forEach((String video) -> {
                     Video foundVideo = new Video();
+                    foundVideo.setDirectory(channel.getChannelDir());
                     foundVideo.setTitle(video);
+                    foundVideo.setPath(foundVideo.getDirectory() + File.separator + foundVideo.getTitle());
                     videos.add(foundVideo);
                 });
                 channel.setVideos(videos);

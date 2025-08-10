@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +68,7 @@ class ConfigurationServiceTest {
             assertEquals("NASASpaceFlight", channels.getFirst().getChannelName());
             assertEquals("@NASASpaceflight", channels.getFirst().getChannelId());
             assertEquals("nsf", channels.getFirst().getChannelDir());
-            assertEquals("https://www.youtube.com/@NASASpaceflight/videos", channels.getFirst().getChannelUrl());
+            assertEquals("https://www.youtube.com/@NASASpaceflight/videos", channels.getFirst().getChannelUrls().getFirst());
             List<ILoggingEvent> logsList = listAppender.list;
             assertThat(logsList)
                     .extracting("message")
@@ -101,7 +100,7 @@ class ConfigurationServiceTest {
             assertEquals("NASASpaceFlight", channels.getFirst().getChannelName());
             assertEquals("@NASASpaceflight", channels.getFirst().getChannelId());
             assertEquals("nsf", channels.getFirst().getChannelDir());
-            assertEquals("https://www.youtube.com/@NASASpaceflight/videos", channels.getFirst().getChannelUrl());
+            assertEquals("https://www.youtube.com/@NASASpaceflight/videos", channels.getFirst().getChannelUrls());
             List<ILoggingEvent> logsList = listAppender.list;
             assertThat(logsList)
                     .extracting("message")
@@ -128,7 +127,7 @@ class ConfigurationServiceTest {
             assertEquals("SpaceX", channels.getFirst().getChannelName());
             assertEquals("@SpaceX", channels.getFirst().getChannelId());
             assertEquals("spacex", channels.getFirst().getChannelDir());
-            assertEquals("https://www.youtube.com/@SpaceX/videos", channels.getFirst().getChannelUrl());
+            assertEquals("https://www.youtube.com/@SpaceX/videos", channels.getFirst().getChannelUrls().getFirst());
             List<ILoggingEvent> logsList = listAppender.list;
             assertThat(logsList)
                     .extracting("message")
@@ -261,17 +260,17 @@ class ConfigurationServiceTest {
      * Tests the URL parsing in the positive scenario.
      */
     @Test
-    public void testSetUrls() {
+    public void testSetUrlsVideosVideos() {
         Channel channel = new Channel();
         channel.setChannelName("SpaceX");
         channel.setChannelId("@SpaceX");
         List<Channel> channels = List.of(channel);
         service.setURLs(channels);
-        assertEquals("https://www.youtube.com/@SpaceX/videos", channels.getFirst().getChannelUrl());
+        assertEquals("https://www.youtube.com/@SpaceX/videos", channels.getFirst().getChannelUrls().getFirst());
     }
 
     @Test
-    public void testSetUrls_invalidChannelId() {
+    public void testSetUrls_invalidChannelIdVideosVideos() {
         Channel channel = new Channel();
         channel.setChannelName("NASASpaceFlight");
         channel.setChannelId("NASASpaceFlight"); //no @

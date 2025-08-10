@@ -77,25 +77,27 @@ public class YoutubeService {
      * @see Video
      */
     public List<Video> getVideoMetadataByChannel(Channel channel) {
-        if(channel.getChannelUrl() == null) {
+        if(channel.getChannelUrls() == null || channel.getChannelUrls().isEmpty()) {
             throw new IllegalArgumentException("Call to YoutubeService.getVideoMetadataByChannel with null channelUrl. " + channel);
         }
-        List<String> processOutput = executeYtdlVideoMetadataCommand(channel.getChannelUrl());
-        //Parse JSON response
         List<Video> videos = new ArrayList<>();
-        processOutput.forEach(outputLine -> {
-            logger.debug(outputLine);
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                Video video = mapper.readValue(outputLine, Video.class);
-                video.setChannelName(channel.getChannelName());
-                video.setDownload_date(new Date());
-                video.setDirectory(channel.getChannelDir());
-                videos.add(video);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        for(String url: channel.getChannelUrls()) {
+            List<String> processOutput = executeYtdlVideoMetadataCommand(url);
+            //Parse JSON response
+            processOutput.forEach(outputLine -> {
+                logger.debug(outputLine);
+                ObjectMapper mapper = new ObjectMapper();
+                try {
+                    Video video = mapper.readValue(outputLine, Video.class);
+                    video.setChannelName(channel.getChannelName());
+                    video.setDownload_date(new Date());
+                    video.setDirectory(channel.getChannelDir());
+                    videos.add(video);
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
         return videos;
     }
 

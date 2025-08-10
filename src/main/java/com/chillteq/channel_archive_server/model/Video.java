@@ -14,6 +14,7 @@ public class Video {
     private Date download_date;
     private String directory;
     private String channelName;
+    private String path; // relative path not including base-directory
     private String downloadStatus; //Set by yt-dl as the video is downloading. eg: "10.0% of    4.97MiB at    5.07MiB/s ETA 00:00"
     private List<String> tags; //Stored as JSON in a separate file with the .tags extension
 
@@ -65,6 +66,14 @@ public class Video {
         this.channelName = channelName;
     }
 
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
     public String getDownloadStatus() {
         return downloadStatus;
     }
@@ -90,6 +99,7 @@ public class Video {
                 ", upload_date='" + download_date + '\'' +
                 ", directory='" + directory + '\'' +
                 ", channelName='" + channelName + '\'' +
+                ", path='" + path + '\'' +
                 ", downloadStatus='" + downloadStatus + '\'' +
                 ", tags='" + tags + '\'' +
                 '}';

@@ -76,7 +76,10 @@ public class ConfigurationService {
 
     public void setURL(Channel channel) {
         if (channel.getChannelId().startsWith("@")) {
-            channel.setChannelUrl("https://www.youtube.com/" + channel.getChannelId() + "/videos");
+            ArrayList<String> urls = new ArrayList<>();
+            urls.add("https://www.youtube.com/" + channel.getChannelId() + "/videos");
+            urls.add("https://www.youtube.com/" + channel.getChannelId() + "/streams");
+            channel.setChannelUrls(urls);
         } else {
             throw new ConfigParseException("Error: Invalid channel ID: " + channel.getChannelId());
         }
