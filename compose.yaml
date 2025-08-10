@@ -13,3 +13,4 @@ services:
       - /c/Documents/example.config:/userDefined.config
       - /c/Documents/baseDirectory/:/baseDirectory/
       - /c/Documents/history.json:/history.json
+      - /c/Documents/cookies.txt:/cookies.txt

@@ -12,7 +12,7 @@ public class Channel {
     private String channelDir;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String channelUrl;
+    private List<String> channelUrls;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String playlistUrl;
@@ -44,12 +44,12 @@ public class Channel {
         this.channelDir = channelDir;
     }
 
-    public String getChannelUrl() {
-        return channelUrl;
+    public List<String> getChannelUrls() {
+        return channelUrls;
     }
 
-    public void setChannelUrl(String channelUrl) {
-        this.channelUrl = channelUrl;
+    public void setChannelUrls(List<String> channelUrls) {
+        this.channelUrls = channelUrls;
     }
 
     public String getPlaylistUrl() {
@@ -69,14 +69,14 @@ public class Channel {
     }
 
     public void prepareForJsonSave() {
-        this.setChannelUrl(null);
+        this.setChannelUrls(null);
         this.setPlaylistUrl(null);
         this.setVideos(null);
     }
 
     public String toShortString() {
         return String.format("[name: %s, id: %s, directory: %s, channelUrl: %s, playlistUrl: %s]",
-                channelName, channelId, channelDir, channelUrl, playlistUrl);
+                channelName, channelId, channelDir, channelUrls, playlistUrl);
     }
 
     @Override
@@ -85,7 +85,7 @@ public class Channel {
                 "channelName='" + channelName + '\'' +
                 ", channelId='" + channelId + '\'' +
                 ", channelDir='" + channelDir + '\'' +
-                ", channelUrl='" + channelUrl + '\'' +
+                ", channelUrl='" + channelUrls + '\'' +
                 ", playlistUrl='" + playlistUrl + '\'' +
                 ", videos=" + videos +
                 '}';
