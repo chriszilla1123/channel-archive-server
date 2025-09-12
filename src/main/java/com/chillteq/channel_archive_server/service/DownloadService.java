@@ -7,10 +7,10 @@ import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,6 +27,9 @@ public class DownloadService {
 
     @Autowired
     private YoutubeService youtubeService;
+
+    @Value("${DEMO:#{false}}")
+    private boolean isDemoMode;
 
     private BlockingQueue<Video> pendingDownloads = new LinkedBlockingQueue<>();
     private ConcurrentMap<String, Video> inProgressDownloads = new ConcurrentHashMap<>();
@@ -113,7 +116,12 @@ public class DownloadService {
         while ((video = pendingDownloads.poll()) != null) {
            inProgressDownloads.put(video.getId(), video);
            try {
-               youtubeService.downloadVideo(video);
+               if(isDemoMode) {
+                   logger.info("startDownloadQueue() - skipping download because demo mode is set to true: {}", video.getTitle());
+                   Thread.sleep(5000);
+               } else {
+                   youtubeService.downloadVideo(video);
+               }
                inProgressDownloads.remove(video.getId());
                completedDownloads.put(video.getId(), video);
                updateHistory();

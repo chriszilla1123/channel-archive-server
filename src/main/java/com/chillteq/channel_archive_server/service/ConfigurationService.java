@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -25,6 +26,9 @@ public class ConfigurationService {
 
     @Autowired
     private YoutubeService youtubeService;
+
+    @Value("${DEMO:#{false}}")
+    private boolean isDemoMode;
 
     public List<Channel> getChannels() throws ConfigParseException {
         InputStream in;
@@ -49,6 +53,10 @@ public class ConfigurationService {
     }
 
     public List<Channel> updateChannels(List<Channel> channels) {
+        if (isDemoMode) {
+            logger.info("updateChannels() - Demo mode is active so channel configuration will not be updated");
+            return getChannels();
+        }
         logger.info("Attempting to update channel list with: {}", channels);
         if(channels == null || channels.isEmpty()) {
             throw new IllegalArgumentException("No channels passed");
