@@ -31,8 +31,8 @@ public class DownloadService {
     @Value("${DEMO:#{false}}")
     private boolean isDemoMode;
 
-    private BlockingQueue<Video> pendingDownloads = new LinkedBlockingQueue<>();
     private ConcurrentMap<String, Video> inProgressDownloads = new ConcurrentHashMap<>();
+    private BlockingQueue<Video> pendingDownloads = new LinkedBlockingQueue<>();
     private ConcurrentMap<String, Video> completedDownloads = new ConcurrentHashMap<>();
     private ConcurrentMap<String, Video> failedDownloads = new ConcurrentHashMap<>();
     private AtomicBoolean downloadInProgress = new AtomicBoolean(false);
@@ -118,7 +118,7 @@ public class DownloadService {
            try {
                if(isDemoMode) {
                    logger.info("startDownloadQueue() - skipping download because demo mode is set to true: {}", video.getTitle());
-                   Thread.sleep(5000);
+                   Thread.sleep(10000);
                } else {
                    youtubeService.downloadVideo(video);
                }
@@ -142,6 +142,24 @@ public class DownloadService {
     public DownloadStatisticsModel getStats() {
         return new DownloadStatisticsModel(pendingDownloads.stream().toList().size(), inProgressDownloads.values().stream().toList().size(),
                 completedDownloads.values().stream().toList().size(), failedDownloads.values().stream().toList().size());
+    }
+
+    public DownloadQueueModel clearPendingDownloads() {
+        logger.info("clearPendingDownloads() - Clearing pending downloads upon request");
+        this.pendingDownloads.clear();
+        return getQueue();
+    }
+
+    public DownloadQueueModel clearCompletedDownloads() {
+        logger.info("clearCompletedDownloads() - Clearing completed download history upon request");
+        this.completedDownloads.clear();
+        return getQueue();
+    }
+
+    public DownloadQueueModel clearFailedDownloads() {
+        logger.info("clearFailedDownloads() - Clearing failed download history upon request");
+        this.failedDownloads.clear();
+        return getQueue();
     }
 
     private void updateHistory() {
