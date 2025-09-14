@@ -33,7 +33,7 @@ public class DownloadController {
      */
 
     @PostMapping(consumes = "application/json", produces = "application/json")
-    @RequestMapping(value = "/oneoff")
+    @RequestMapping(value = "oneoff")
     public ResponseEntity<Boolean> downloadVideo(@RequestBody DownloadRequestModel request) {
         return ResponseEntity.ok().body(service.downloadVideo(request));
     }
@@ -46,5 +46,20 @@ public class DownloadController {
     @GetMapping(value="stats")
     public ResponseEntity<DownloadStatisticsModel> getStats() {
         return ResponseEntity.ok().body(service.getStats());
+    }
+
+    @GetMapping(value="clear/pending")
+    public ResponseEntity<DownloadQueueModel> clearPendingDownloads() {
+        return ResponseEntity.ok().body(service.clearPendingDownloads());
+    }
+
+    @GetMapping(value="clear/completed")
+    public ResponseEntity<DownloadQueueModel> clearCompletedDownloads() {
+        return ResponseEntity.ok().body(service.clearCompletedDownloads());
+    }
+
+    @GetMapping(value="clear/failed")
+    public ResponseEntity<DownloadQueueModel> clearFailedDownloads() {
+        return ResponseEntity.ok().body(service.clearFailedDownloads());
     }
 }
