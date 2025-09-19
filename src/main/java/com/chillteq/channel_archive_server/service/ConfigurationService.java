@@ -65,7 +65,9 @@ public class ConfigurationService {
         for (Channel channel: channels) {
             try {
                 setURL(channel);
-                youtubeService.validateChannel(channel);
+                if(channel.isEnabled()) {
+                    youtubeService.validateChannel(channel);
+                }
                 channel.prepareForJsonSave();
                 validatedChannels.add(channel);
             } catch (Exception e) {
