@@ -25,6 +25,9 @@ public class WebConfig {
     @Value("${PASS}")
     public String password;
 
+    @Value("${DEMO:#{false}}")
+    private boolean isDemoMode;
+
     @Bean
     public WebMvcConfigurer corsConfigure() {
         return new WebMvcConfigurer() {
@@ -53,9 +56,15 @@ public class WebConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable()
-                .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
-                .httpBasic();
-        return http.build();
+        if(isDemoMode) {
+            http.cors().and().csrf().disable()
+                    .httpBasic();
+            return http.build();
+        } else {
+            http.cors().and().csrf().disable()
+                    .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
+                    .httpBasic();
+            return http.build();
+        }
     }
 }

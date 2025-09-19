@@ -145,6 +145,7 @@ class ConfigurationServiceTest {
         Channel channel = new Channel();
         channel.setChannelName("SpaceX");
         channel.setChannelId("@SpaceX");
+        channel.setEnabled(true);
         List<Channel> channels = List.of(channel);
         Mockito.doNothing().when(youtubeService).validateChannel(channel);
         try {
@@ -167,6 +168,7 @@ class ConfigurationServiceTest {
         Channel channel = new Channel();
         channel.setChannelName("SpaceX");
         channel.setChannelId("@SpaceX");
+        channel.setEnabled(true);
         List<Channel> channels = List.of(channel);
         Mockito.doThrow(new RuntimeException()).when(youtubeService).validateChannel(channel);
 
@@ -191,10 +193,12 @@ class ConfigurationServiceTest {
         Channel validChannel = new Channel();
         validChannel.setChannelName("Youtube");
         validChannel.setChannelId("@Youtube");
+        validChannel.setEnabled(true);
 
         Channel invalidChannel = new Channel();
         invalidChannel.setChannelName("SpaceX");
         invalidChannel.setChannelId("@SpaceX");
+        invalidChannel.setEnabled(true);
         Mockito.doThrow(new RuntimeException()).when(youtubeService).validateChannel(invalidChannel);
         Mockito.doNothing().when(youtubeService).validateChannel(validChannel);
         try {
@@ -207,6 +211,40 @@ class ConfigurationServiceTest {
         try {
             List<Channel> persistedChannels = service.updateChannels(channels);
             assertEquals(1, persistedChannels.size());
+        } catch (Exception e) {
+            List<ILoggingEvent> logsList = listAppender.list;
+            List<String> logMessages = logsList.stream()
+                    .map(ILoggingEvent::getMessage)
+                    .filter(message -> message.contains("Failed to validate channel:"))
+                    .collect(Collectors.toList());
+            assertThat(logMessages).isNotEmpty();
+        }
+    }
+
+    /**
+     * Verifies that disabled channels will not need to pass validation.
+     */
+    @Test
+    public void testUpdateChannels_skipValidationOnDisabledChannel() {
+        Channel validChannel = new Channel();
+        validChannel.setChannelName("Youtube");
+        validChannel.setChannelId("@Youtube");
+        validChannel.setEnabled(true);
+
+        Channel invalidChannel = new Channel();
+        invalidChannel.setChannelName("SpaceX");
+        invalidChannel.setChannelId("@SpaceX");
+        invalidChannel.setEnabled(false);  //Disable channel, so validateChannel should not be called.
+        try {
+            Mockito.when(fileService.persistChannels(Mockito.anyList())).thenAnswer(invocation -> invocation.getArgument(0));
+        } catch (Exception e) {
+            fail();
+        }
+
+        List<Channel> channels = List.of(validChannel, invalidChannel);
+        try {
+            List<Channel> persistedChannels = service.updateChannels(channels);
+            assertEquals(2, persistedChannels.size());
         } catch (Exception e) {
             List<ILoggingEvent> logsList = listAppender.list;
             List<String> logMessages = logsList.stream()

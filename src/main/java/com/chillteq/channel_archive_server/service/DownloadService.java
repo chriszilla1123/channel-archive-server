@@ -65,8 +65,14 @@ public class DownloadService {
         logger.info("Download Archive process started with request: {}", request);
         List<Channel> channels = configurationService.getChannels();
         for (Channel channel: channels) {
+            if (channel.isEnabled()) {
+                logger.info("Processing channel: {}", channel.toShortString());
+            } else {
+                logger.info("Skipping disabled channel: {}", channel.toShortString());
+                break;
+            }
+
             //Fetch all videos available on channel
-            logger.info("Processing channel: {}", channel.toShortString());
             try {
                 channel.setVideos(youtubeService.getVideoMetadataByChannel(channel));
             } catch (YoutubeDownloadException ytdlException) {

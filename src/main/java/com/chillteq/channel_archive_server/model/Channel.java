@@ -11,6 +11,8 @@ public class Channel {
 
     private String channelDir;
 
+    private boolean enabled;
+
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<String> channelUrls;
 
@@ -42,6 +44,14 @@ public class Channel {
 
     public void setChannelDir(String channelDir) {
         this.channelDir = channelDir;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     public List<String> getChannelUrls() {
@@ -85,6 +95,7 @@ public class Channel {
                 "channelName='" + channelName + '\'' +
                 ", channelId='" + channelId + '\'' +
                 ", channelDir='" + channelDir + '\'' +
+                ", enabled='" + enabled + '\'' +
                 ", channelUrl='" + channelUrls + '\'' +
                 ", playlistUrl='" + playlistUrl + '\'' +
                 ", videos=" + videos +
