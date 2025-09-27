@@ -95,20 +95,36 @@ public class FileService {
         return filteredVideos;
     }
 
+    /**
+     * Used by the BrowseService for browsing channels and videos downloaded to the disk
+     * Includes an "Other" channel for videos directly in the base directory
+     *
+     * @return List of downloaded channels with their video metadata
+     * @throws IOException
+     */
     public List<Channel> getDownloadedChannels() throws IOException {
         List<Channel> channels = new ArrayList<>();
         List<String> channelDirectories = getAllChannelDirectories();
+        channelDirectories.add(null); // for 'Other' channel
         channelDirectories.forEach((String path) -> {
             Channel channel = new Channel();
             channel.setChannelDir(path);
+            if(null == path) {
+                channel.setChannelName("Other");
+            }
             try {
                 List<Video> videos = new ArrayList<>();
                 List<String> videoNames = getAllVideosByDirectory(path);
-                videoNames.stream().forEach((String video) -> {
+                videoNames.forEach((String videoFileName) -> {
                     Video foundVideo = new Video();
                     foundVideo.setDirectory(channel.getChannelDir());
-                    foundVideo.setTitle(video);
-                    foundVideo.setPath(foundVideo.getDirectory() + File.separator + foundVideo.getTitle());
+                    foundVideo.setTitle(videoFileName);
+                    String videoPath = "";
+                    if( null != foundVideo.getDirectory() ) {
+                        videoPath += foundVideo.getDirectory() + "/";
+                    }
+                    videoPath += foundVideo.getTitle();
+                    foundVideo.setPath(videoPath);
                     videos.add(foundVideo);
                 });
                 channel.setVideos(videos);
@@ -129,10 +145,21 @@ public class FileService {
         return channelDirectories;
     }
 
-    private List<String> getAllVideosByDirectory(String path) throws IOException {
+    /**
+     *
+     * @param directory The directory name, including only the final folder name, with no leading '/'
+     * @return The list of video file names in the given directory
+     * @throws IOException
+     */
+    private List<String> getAllVideosByDirectory(String directory) throws IOException {
         List<String> videos = new ArrayList<>();
-        Stream<Path> stream = Files.list(Paths.get(Constants.baseVideoDirectory + File.separator + path));
-        stream.map((Path foundPath) -> foundPath.getFileName().toString()).forEach((String filename) -> {
+        String fullDirectory = Constants.baseVideoDirectory;
+        if (null != directory) {
+            fullDirectory += File.separator + directory;
+        }
+        Stream<Path> stream = Files.list(Paths.get(fullDirectory));
+        stream.filter(Files::isRegularFile)
+                .map((Path foundPath) -> foundPath.getFileName().toString()).forEach((String filename) -> {
             videos.add(filename);
         });
         return videos;
